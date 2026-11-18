@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="RigShade Control — the Cube Baby's three presets, its chain and its whole editor, from a desktop browser over USB-MIDI.">
+<meta name="theme-color" content="#121826">
+<title>RigShade — control page</title>
+
+<style>
+  :root {
+    --carbon: #121826;
+    --mint: #27E5B1;
+    --sky: #33B8FF;
+    --violet: #7A5CFF;
+    --mist: #F4F7FA;
+    --panel: #222835;
+    --inset: #2F3542;
+    --hairline: rgba(244, 247, 250, 0.24);
+    --hairline-faint: rgba(244, 247, 250, 0.12);
+    --secondary: rgba(244, 247, 250, 0.68);
+    --tertiary: rgba(244, 247, 250, 0.45);
+    --off: #4C525F;
+    --error: #CF6679;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    background: var(--carbon);
+    color: var(--mist);
+    font: 14px/1.45 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  @media (max-width: 560px) {
+    body { padding: 12px; }
+  }
+
+  h1 { font-size: 20px; letter-spacing: -0.3px; margin: 0; }
+  h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; color: var(--secondary); }
+  h3 { font-size: 15px; margin: 0 0 6px; }
+  h1 span { color: var(--mint); }
+
+  .page {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  @media (min-width: 1080px) {
+    .page { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+    .page > header, .page > .wide, .page > [data-shell="wire"] { grid-column: 1 / -1; }
+  }
+
+  .page > *, .panel > * { min-width: 0; }
+
+  header p { margin: 6px 0 0; }
+
+  .panel[hidden] { display: none; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--hairline-faint);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: grid;
+    gap: 12px;
+
+    min-width: 0;
+  }
+
+  .panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .state { font-size: 12px; color: var(--tertiary); }
+  .state[data-kind="Ready"] { color: var(--mint); }
+  .state[data-kind="Failed"] { color: var(--error); }
+
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  button {
+    font: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    color: var(--mist);
+    background: var(--inset);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled) { border-color: var(--mint); }
+  button:disabled { color: var(--tertiary); cursor: not-allowed; border-color: var(--hairline-faint); background: transparent; }
+  button.primary { background: var(--mint); color: var(--carbon); border-color: var(--mint); }
+  button.primary:disabled { background: transparent; color: var(--tertiary); border-color: var(--hairline-faint); }
+  button.danger { color: var(--error); }
+
+  a { color: var(--mint); text-underline-offset: 2px; }
+  a.primary {
+    display: inline-block;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    background: var(--mint);
+    color: var(--carbon);
+    border: 1px solid var(--mint);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-decoration: none;
+  }
+  a.primary:hover { filter: brightness(1.06); }
+
+  .foot .fine { margin: 0; font-size: 12px; color: var(--tertiary); }
+  .foot .fine a { color: var(--secondary); }
+  .foot .row { gap: 12px; }
+
+  .chip {
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: var(--inset);
+    border: 1px solid var(--hairline-faint);
+    color: var(--secondary);
+    font-weight: 700;
+  }
+  .chip[aria-pressed="true"] { background: var(--violet); border-color: var(--violet); color: var(--mist); }
+  .chip.badge { background: transparent; color: var(--sky); border-color: var(--hairline); font-weight: 600; }
+  .chip.nav { flex: 0 0 auto; }
+
+  label { display: flex; align-items: center; gap: 8px; color: var(--secondary); font-size: 12px; }
+  select {
+    font: inherit;
+    font-size: 13px;
+    color: var(--mist);
+    background: var(--inset);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 6px 8px;
+    min-width: 170px;
+  }
+  select:disabled { color: var(--tertiary); border-color: var(--hairline-faint); background: transparent; }
+
+  .row > label { flex: 1 1 220px; min-width: 0; }
+  .row > label > select { flex: 1 1 170px; min-width: 0; }
+
+  .notice { margin: 0; color: var(--secondary); font-size: 12.5px; }
+  .notice.error { color: var(--error); }
+  .notice.ok { color: var(--mint); }
+  .pair { font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+  .pair[data-ok="1"] { color: var(--mint); }
+  .pair[data-ok="0"] { color: var(--error); }
+
+  #screen.locked { opacity: 0.55; pointer-events: none; }
+
+  .chain-order { font-size: 12px; color: var(--tertiary); font-weight: 600; letter-spacing: 0.06em; }
+
+  .board {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 4px 0 8px;
+
+    min-width: 0;
+  }
+  .terminal {
+    flex: 0 0 auto;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 6px;
+    min-width: 34px;
+    color: var(--tertiary);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+  .terminal .socket { width: 10px; height: 26px; border-radius: 3px; background: var(--inset); border: 1px solid var(--hairline); }
+  .terminal.out {
+    min-width: 76px;
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 8px;
+    color: var(--mist);
+    cursor: pointer;
+    background: var(--panel);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+  }
+  .terminal.out .name { font-size: 11px; color: var(--secondary); }
+  .terminal.out .value { font-size: 13px; font-weight: 600; }
+  .cable { flex: 0 0 10px; align-self: center; height: 2px; border-radius: 1px; background: var(--hairline-faint); }
+
+  .box {
+    flex: 1 1 140px;
+
+    min-width: 140px;
+    display: grid;
+    align-content: space-between;
+    gap: 4px;
+    padding: 8px;
+    border-radius: 12px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.28);
+    cursor: pointer;
+  }
+  .box.off { border-color: var(--hairline-faint); }
+  .box-head { display: flex; align-items: center; gap: 4px; overflow: hidden; }
+  .box-name { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .box.off .box-name { color: var(--secondary); }
+  .box-edit { margin-left: auto; font-size: 10px; color: var(--sky); font-weight: 600; }
+  .led {
+    width: 12px;
+    height: 12px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--off);
+    border: 1px solid var(--hairline);
+    flex: 0 0 auto;
+  }
+  .led.on { background: var(--mint); border-color: rgba(39, 229, 177, 0.45); }
+
+  .knobs { display: flex; gap: 4px; align-items: start; min-width: 0; }
+
+  .knob { flex: 1 1 0; display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 2px; min-width: 0; }
+  .knob-label { font-size: 11px; color: var(--secondary); letter-spacing: 0.06em; }
+  .knob.dim .knob-label, .knob.dim .knob-value { color: var(--tertiary); }
+  .knob-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mist);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .dial {
+    --frac: 0;
+    width: 100%;
+    max-width: 42px;
+    aspect-ratio: 1;
+    height: auto;
+    position: relative;
+    --dial-arc: var(--mint);
+
+    touch-action: none;
+    cursor: ns-resize;
+  }
+  .knob .value-box { cursor: pointer; }
+  .dial.off, .dial.dim { --dial-arc: var(--off); }
+  .dial::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 225deg,
+      var(--dial-arc) 0 calc(var(--frac) * 270deg),
+      var(--hairline-faint) calc(var(--frac) * 270deg) 270deg,
+      transparent 270deg 360deg
+    );
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  }
+  .dial-body {
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: var(--inset);
+    border: 1px solid rgba(0, 0, 0, 0.4);
+  }
+  .dial-pointer {
+    position: absolute;
+    left: calc(50% - 1px);
+    bottom: 50%;
+    width: 2px;
+    height: 34%;
+    border-radius: 1px;
+    background: var(--mist);
+    transform-origin: 50% 100%;
+    transform: rotate(calc(-135deg + var(--frac) * 270deg));
+  }
+  .dial.off .dial-pointer, .dial.dim .dial-pointer { background: var(--off); }
+
+  .box-foot { display: flex; align-items: center; gap: 6px; min-height: 18px; }
+  .box-notice { font-size: 10.5px; color: var(--tertiary); }
+  .footswitch { margin-left: auto; width: 30px; height: 12px; border-radius: 50%; background: var(--inset); border: 1px solid var(--hairline); }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .bar .spacer { flex: 1 1 auto; }
+  .bar .save { background: var(--mint); color: var(--carbon); border-color: var(--mint); }
+  .bar .save:disabled { background: transparent; color: var(--tertiary); border-color: var(--hairline-faint); }
+
+  .editor { display: grid; gap: 12px; min-width: 0; }
+  .blocks {
+    display: grid;
+    gap: 12px;
+    align-items: start;
+    min-width: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  }
+  .block { border: 1px solid var(--hairline); border-radius: 12px; padding: 12px; display: grid; gap: 10px; background: var(--panel); min-width: 0; }
+
+  .block.focus { border-color: var(--violet); }
+  .block-head { display: flex; align-items: center; gap: 8px; }
+  .block-title { font-size: 13px; font-weight: 700; }
+  .block-note { font-size: 11px; color: var(--tertiary); margin-left: auto; }
+  .params { display: flex; flex-wrap: wrap; gap: 10px; }
+  .params .knob { flex: 0 0 84px; }
+  .params .dial { width: 56px; max-width: 56px; height: 56px; }
+  .params .value-box {
+    background: var(--inset);
+    border: 1px solid var(--hairline-faint);
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+  }
+  .params .knob[aria-disabled="true"] { opacity: 0.6; }
+
+  .mic { display: grid; gap: 6px; border-top: 1px solid var(--hairline-faint); padding-top: 10px; }
+  .mic-label { font-size: 12px; font-weight: 700; }
+  .mic-refusal { font-size: 12px; color: var(--secondary); }
+
+  .tonegen-intent { display: grid; gap: 10px 16px; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+  .tonegen-slider { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 8px; }
+  .tonegen-slider > input[type="range"] { grid-column: 1 / -1; }
+  .tonegen-slider > select { grid-column: 1 / -1; min-width: 0; }
+  .tonegen-value { color: var(--mist); font-weight: 600; font-size: 12px; text-align: right; }
+  .tonegen-ends { grid-column: 1 / -1; font-size: 11px; color: var(--tertiary); }
+  .tonegen-screen [data-tonegen-param] { min-width: 0; }
+
+  .tonegen-pane[hidden] { display: none; }
+  .tonegen-tabs .chip { font-weight: 700; }
+
+  .library-screen { display: grid; gap: 12px; min-width: 0; }
+  .library-filters { display: grid; gap: 10px 16px; grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); }
+  .library-search { display: grid; gap: 2px; min-width: 0; }
+  .library-filters label { display: grid; gap: 2px; min-width: 0; }
+  .library-filters select { min-width: 0; width: 100%; }
+  .library-search input {
+    font: inherit;
+    font-size: 13px;
+    color: var(--mist);
+    background: var(--inset);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 6px 8px;
+    min-width: 0;
+  }
+
+  .library-list {
+    display: grid;
+    gap: 2px;
+    max-height: 320px;
+    overflow: auto;
+    border: 1px solid var(--hairline-faint);
+    border-radius: 10px;
+    padding: 4px;
+    min-width: 0;
+  }
+  .library-item {
+    display: grid;
+    gap: 2px;
+    text-align: left;
+    font-weight: 400;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 6px 8px;
+    min-width: 0;
+  }
+  .library-item:hover:not(:disabled) { border-color: var(--mint); }
+  .library-item[aria-pressed="true"] { border-color: var(--violet); background: var(--inset); }
+  .library-item-head { display: flex; gap: 8px; justify-content: space-between; min-width: 0; }
+  .library-item-name { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .library-item-decade { color: var(--tertiary); font-size: 11px; flex: 0 0 auto; }
+  .library-item-meta { font-size: 11px; color: var(--tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .library-detail { display: grid; gap: 10px; min-width: 0; }
+  .library-facts { display: grid; gap: 4px; }
+  .library-fact { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 8px; margin: 0; font-size: 12.5px; color: var(--secondary); }
+  .library-fact a { color: var(--sky); }
+
+  #log { height: 340px; max-height: 45vh; overflow: auto; margin: 0; font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--secondary); }
+  #log .sent { color: var(--sky); }
+  #log .received { color: var(--mint); }
+  #log .failed { color: var(--error); }
+
+  dialog {
+    background: var(--panel);
+    color: var(--mist);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 16px;
+
+    width: min(420px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    display: grid;
+    gap: 10px;
+  }
+
+  dialog:not([open]) { display: none; }
+  dialog::backdrop { background: rgba(18, 24, 38, 0.72); }
+  dialog p { margin: 0; color: var(--secondary); font-size: 13px; }
+  dialog .row { justify-content: flex-end; }
+
+  input[type="range"] { width: 100%; accent-color: var(--mint); }
+  input[type="number"] {
+    font: inherit;
+    color: var(--mist);
+    background: var(--inset);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 6px 8px;
+    width: 100px;
+  }
+</style>
+</head>
+<body>
+<div class="page" data-shell="page">
+  <header>
+    <h1>RigShade <span>CONTROL</span></h1>
+    <p class="notice" id="status" data-shell="status-band" role="status"></p>
+  </header>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Link</h2>
+      <span class="state" data-shell="link-state">not connected</span>
+    </div>
+    <div class="row">
+      <button class="primary" data-shell="connect">CONNECT</button>
+      <button data-shell="diagnose" title="asks every candidate port pair its name and prints one line per pair">DIAGNOSE</button>
+      <button data-shell="read-presets" disabled>READ PRESETS</button>
+      <label>Output <select data-shell="out-port"><option value="">—</option></select></label>
+      <label>Input <select data-shell="in-port"><option value="">—</option></select></label>
+    </div>
+    <p class="notice">Pedal <span data-shell="pedal-name">—</span></p>
+    <p class="notice" data-shell="link-notice">Web MIDI only exists on a secure page, so this page is
+      served over https. Chrome and Edge are the browsers that ship a SysEx-capable Web MIDI; the
+      first connection asks for permission.</p>
+    <div data-shell="link-diagnosis"></div>
+  </section>
+
+  <section class="panel">
+    <div class="row" data-shell="nav-row"></div>
+    <div class="row" data-shell="preset-row"></div>
+    <p class="notice" data-shell="edit-lock" hidden></p>
+  </section>
+
+  <section class="panel wide">
+    <div data-shell="screen"></div>
+  </section>
+
+  <aside class="panel" data-shell="wire" hidden>
+    <div class="panel-head">
+      <h2>Wire</h2>
+      <button data-shell="clear-log">CLEAR</button>
+    </div>
+    <pre data-shell="log"></pre>
+  </aside>
+
+  <dialog data-shell="guidance">
+    <h3 data-shell="guidance-title"></h3>
+    <p data-shell="guidance-body"></p>
+    <div class="row"><button data-shell="guidance-ok">OK</button></div>
+  </dialog>
+
+  <dialog data-shell="pick-bank">
+    <h3>Which bank is playing?</h3>
+    <p>Tap the bank the pedal's own A/B/C switch is on. That bank is heard live; the others reach the
+      pedal when you press SAVE.</p>
+    <div class="row" data-shell="pick-bank-buttons"></div>
+    <div class="row"><button data-shell="pick-bank-cancel">Cancel</button></div>
+  </dialog>
+
+  <footer class="panel wide foot" data-shell="foot">
+    <div class="panel-head">
+      <h2>Testers</h2>
+      <span class="state">Android app · closed testing</span>
+    </div>
+    <p>The same three presets, the same chain and the same editor, on a phone, over USB-C. The app is
+      in closed testing: one build per round, and the notes that come back decide what the next round
+      changes.</p>
+    <p class="row">
+      <span class="notice">The tester list is being set up.</span>
+    </p>
+    <p class="fine">© RigShade. All rights reserved. · <a href="legal.html#terms">Terms of use</a> ·
+      <a href="legal.html#privacy">Privacy</a></p>
+    <p class="fine">RigShade is an independent project. It is not affiliated with, endorsed by or
+      sponsored by M-VAVE or CUVAVE; the pedal's name is here only to say what this page talks to.</p>
+  </footer>
+</div>
+
+<script src="protocol.js"></script>
+<script src="cabinet.js"></script>
+<script src="bank.js"></script>
+<script src="session.js"></script>
+<script src="transport.js"></script>
+<script src="app.js"></script>
+<script src="ui-chain.js"></script>
+<script src="ui-bank.js"></script>
+<script src="tonegen.js"></script>
+<script src="tone-library-data.js"></script>
+<script src="tone-library.js"></script>
+<script src="ui-tonegen.js"></script>
+<script src="ui-library.js"></script>
+<script src="boot.js"></script>
+</body>
+</html>

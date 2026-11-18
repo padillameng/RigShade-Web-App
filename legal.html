@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RigShade — terms and privacy</title>
+<meta name="description" content="RigShade Control: terms of use and what this page does with your data (nothing leaves the browser).">
+<meta name="theme-color" content="#121826">
+
+<style>
+  :root {
+    --carbon: #121826;
+    --mint: #27E5B1;
+    --mist: #F4F7FA;
+    --secondary: rgba(244, 247, 250, 0.68);
+    --tertiary: rgba(244, 247, 250, 0.45);
+    --hairline-faint: rgba(244, 247, 250, 0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background: var(--carbon);
+    color: var(--mist);
+    font: 14px/1.55 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  main { max-width: 720px; margin: 0 auto; display: grid; gap: 20px; }
+  h1 { font-size: 20px; margin: 0; letter-spacing: -0.3px; }
+  h2 { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--secondary); margin: 0; }
+  section { background: #222835; border: 1px solid var(--hairline-faint); border-radius: 12px; padding: 16px; display: grid; gap: 10px; }
+  p { margin: 0; }
+  a { color: var(--mint); text-underline-offset: 2px; }
+  .fine { font-size: 12px; color: var(--tertiary); }
+  code { font-size: 12.5px; color: var(--secondary); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>RigShade — terms and privacy</h1>
+    <p class="fine">Last updated when this page was published. <a href="index.html">Back to the control page</a>.</p>
+  </header>
+
+  <section id="terms">
+    <h2>Terms of use</h2>
+    <p>RigShade Control is a free, unofficial tool for editing the three presets of a Cube Baby
+      multi-effects pedal from a desktop browser. It is provided as it is, without warranty of any
+      kind. It writes to the pedal flash; the page checks what it writes by reading it back, but the
+      risk of using it stays with you, and a preset you care about should be exported first.</p>
+    <p>RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by
+      M-VAVE or CUVAVE. The pedal's name is used only to say what this page talks to.</p>
+    <p>© RigShade. All rights reserved. The name RigShade, this page's text and its design are not
+      licensed for reuse. No part of this page may be republished as another product.</p>
+  </section>
+
+  <section id="privacy">
+    <h2>Privacy</h2>
+    <p>This page runs in your browser. It has no account, no analytics, no cookie and no server of its
+      own: every byte it needs is the page itself. The browser refuses any outbound request from it,
+      so the only network traffic is the download of the page.</p>
+    <p>Your presets and the bank you build stay on your computer, in this browser's
+      <code>localStorage</code>, and nowhere else. Clearing site data deletes them.</p>
+    <p>The page asks the browser for permission to use Web MIDI, which is what reaches the pedal over
+      USB. That permission is the browser's, not ours. The only device the page talks to is the one
+      you pick in the Link panel.</p>
+    <p>The tester list, when it opens, is a separate page that does collect an address, and it says
+      so there.</p>
+  </section>
+
+  <p class="fine">© RigShade. All rights reserved.</p>
+</main>
+</body>
+</html>
