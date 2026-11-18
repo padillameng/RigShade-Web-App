@@ -76,6 +76,9 @@
 
   header p { margin: 6px 0 0; }
 
+  .header-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .header-top .lang-row { margin-left: auto; justify-content: flex-end; }
+
   .panel[hidden] { display: none; }
 
   .panel {
@@ -509,7 +512,18 @@
 <body>
 <div class="page" data-shell="page">
   <header>
-    <h1>RigShade <span>WebApp</span></h1>
+    <div class="header-top">
+      <h1>RigShade <span>WebApp</span></h1>
+
+      <div class="row lang-row">
+        <span class="state" data-i18n="Language">Language</span>
+        <div class="row lang-chips" role="group" aria-label="Language" data-i18n="Language" data-i18n-attr="aria-label">
+          <button class="chip" type="button" data-i18n-set="en" aria-pressed="true">EN</button>
+          <button class="chip" type="button" data-i18n-set="es" aria-pressed="false">ES</button>
+          <button class="chip" type="button" data-i18n-set="pt" aria-pressed="false">PT</button>
+        </div>
+      </div>
+    </div>
     <p class="notice" id="status" data-shell="status-band" role="status"></p>
   </header>
 
@@ -614,15 +628,6 @@
     <p class="fine"><span data-i18n="© RigShade. All rights reserved.">© RigShade. All rights reserved.</span> · <a href="legal.html#terms" data-i18n="Terms of use">Terms of use</a> ·
       <a href="legal.html#privacy" data-i18n="Privacy">Privacy</a></p>
     <p class="fine" data-i18n="RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE; the pedal's name is here only to say what this page talks to.">RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE; the pedal's name is here only to say what this page talks to.</p>
-
-    <div class="row lang-row">
-      <span class="state" data-i18n="Language">Language</span>
-      <div class="row lang-chips" role="group" aria-label="Language" data-i18n="Language" data-i18n-attr="aria-label">
-        <button class="chip" type="button" data-i18n-set="en" aria-pressed="true">EN</button>
-        <button class="chip" type="button" data-i18n-set="es" aria-pressed="false">ES</button>
-        <button class="chip" type="button" data-i18n-set="pt" aria-pressed="false">PT</button>
-      </div>
-    </div>
   </footer>
 </div>
 
