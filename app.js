@@ -4,6 +4,14 @@ const P=global.RigShadeProtocol;
 if(!P)throw new Error('app.js needs protocol.js to be loaded first');
 const S=global.RigShadeSession;
 if(!S)throw new Error('app.js needs session.js to be loaded first');
+function t(text,vars){
+const layer=global.RigShadeI18n;
+if(layer&&typeof layer.t==='function')return layer.t(text,vars);
+if(!vars)return text;
+return String(text).replace(/\{(\w+)\}/g,function(match,name){
+return Object.prototype.hasOwnProperty.call(vars,name)?String(vars[name]):match;
+});
+}
 const TIMEOUT_MS=1500;
 const LOG_LINES=400;
 const TITLE_MAX=34;
@@ -15,22 +23,22 @@ const GUIDANCE={
 PEDAL_NOT_CONNECTED:function(){
 return{
 id:'PEDAL_NOT_CONNECTED',
-title:'Pedal not connected',
-body:'Plug the pedal in over USB, press CONNECT, then try again.',
+title:t('Pedal not connected'),
+body:t('Plug the pedal in over USB, press CONNECT, then try again.'),
 };
 },
 READ_THE_PEDAL_FIRST:function(){
 return{
 id:'READ_THE_PEDAL_FIRST',
-title:'Read the pedal first',
-body:'Press READ PRESETS so the page holds A, B and C, then try again.',
+title:t('Read the pedal first'),
+body:t('Press READ PRESETS so the page holds A, B and C, then try again.'),
 };
 },
 SAVE_NOT_CONFIRMED:function(){
 return{
 id:'SAVE_NOT_CONFIRMED',
-title:'Save not confirmed',
-body:'The pedal did not read back the values. Press SAVE again; if a cabinet was involved, press RESTORE.',
+title:t('Save not confirmed'),
+body:t('The pedal did not read back the values. Press SAVE again; if a cabinet was involved, press RESTORE.'),
 };
 },
 EDIT_HELD:function(facts){
@@ -38,50 +46,57 @@ const edited=slotName(facts.edited);
 const sounding=slotName(facts.sounding);
 return{
 id:'EDIT_HELD',
-title:'Edit held for bank '+edited,
-body:
-'The pedal is playing '+sounding+', so nothing was sent. Tap the bank badge and pick '+edited+'.',
+title:t('Edit held for bank {bank}',{bank:edited}),
+body:t(
+'The pedal is playing {sounding}, so nothing was sent. Tap the bank badge and pick {target}.',
+{sounding:sounding,target:edited}
+),
 };
 },
 MIC_DIST_OTHER_BANK:function(facts){
 return{
 id:'MIC_DIST_OTHER_BANK',
-title:'MIC DIST is for the sounding bank',
-body:
-'The pedal is playing '+slotName(facts.sounding)+'. Tap the bank badge and pick '+
-slotName(facts.edited)+', then move MIC DIST.',
+title:t('MIC DIST is for the sounding bank'),
+body:t(
+'The pedal is playing {sounding}. Tap the bank badge and pick {target}, then move MIC DIST.',
+{sounding:slotName(facts.sounding),target:slotName(facts.edited)}
+),
 };
 },
 MIC_DIST_FACTORY_CABINET:function(facts){
 return{
 id:'MIC_DIST_FACTORY_CABINET',
-title:'MIC DIST needs your cabinet',
-body:
-'Bank '+slotName(facts.sounding)+' plays factory cabinet '+facts.irValue+
-'. MIC DIST only moves your imported cabinet — press IMPORT IR first.',
+title:t('MIC DIST needs your cabinet'),
+body:t(
+'Bank {bank} plays factory cabinet {cabinet}. MIC DIST only moves your imported cabinet — press IMPORT IR first.',
+{bank:slotName(facts.sounding),cabinet:facts.irValue}
+),
 };
 },
 MIC_DIST_IR_OFF:function(facts){
 return{
 id:'MIC_DIST_IR_OFF',
-title:'Bank '+slotName(facts.sounding)+' has no cabinet',
-body:'Turn IR on for bank '+slotName(facts.sounding)+', or import a cabinet, then move MIC DIST.',
+title:t('Bank {bank} has no cabinet',{bank:slotName(facts.sounding)}),
+body:t('Turn IR on for bank {bank}, or import a cabinet, then move MIC DIST.',{
+bank:slotName(facts.sounding),
+}),
 };
 },
 CABINET_UNREAD:function(){
 return{
 id:'CABINET_UNREAD',
-title:'Cabinet not read',
-body:'The page could not read the pedal\'s cabinet. Press READ CABINET, then try again.',
+title:t('Cabinet not read'),
+body:t('The page could not read the pedal\'s cabinet. Press READ CABINET, then try again.'),
 };
 },
 CABINET_EMPTY:function(facts){
 return{
 id:'CABINET_EMPTY',
-title:'No cabinet to move',
-body:
-'Bank '+slotName(facts.sounding)+
-' selects cabinet 8 and the pedal\'s slot is empty. Press IMPORT IR to put a cabinet there.',
+title:t('No cabinet to move'),
+body:t(
+'Bank {bank} selects cabinet 8 and the pedal\'s slot is empty. Press IMPORT IR to put a cabinet there.',
+{bank:slotName(facts.sounding)}
+),
 };
 },
 };
@@ -228,14 +243,14 @@ state.connected=false;
 const label=byId('link-state');
 const ready=state.linkKind==='Ready';
 label.textContent=ready
-?'Ready · '+(current.name||'(no name)')
+?t('Ready · {name}',{name:current.name||t('(no name)')})
 :state.linkKind+(state.linkReason?' · '+state.linkReason:'');
 label.setAttribute('data-kind',state.linkKind);
-byId('pedal-name').textContent=ready?'"'+(current.name||'(empty name)')+'"':'—';
+byId('pedal-name').textContent=ready?'"'+(current.name||t('(empty name)'))+'"':'—';
 byId('link-notice').textContent=
 current!==null
 ?current.message
-:'transport.js is not loaded: the page is showing what it would do, and cannot talk to a pedal.';
+:t('transport.js is not loaded: the page is showing what it would do, and cannot talk to a pedal.');
 paintPorts();
 }
 let paintedPorts='';
@@ -248,8 +263,8 @@ byId('in-port').value=ports.chosen.inputId||'';
 return;
 }
 paintedPorts=key;
-fillPortSelect(byId('out-port'),ports.outputs,'no output',ports.chosen.outputId);
-fillPortSelect(byId('in-port'),ports.inputs,'no input',ports.chosen.inputId);
+fillPortSelect(byId('out-port'),ports.outputs,t('no output'),ports.chosen.outputId);
+fillPortSelect(byId('in-port'),ports.inputs,t('no input'),ports.chosen.inputId);
 }
 function fillPortSelect(select,ports,fallback,chosen){
 select.textContent='';
@@ -271,7 +286,7 @@ row.textContent='';
 const back=document.createElement('button');
 back.className='chip';
 back.id='nav-back';
-back.textContent='BACK';
+back.textContent=t('BACK');
 back.disabled=history.length===0||!state.connected;
 back.addEventListener('click',function(){
 goBack();
@@ -282,7 +297,7 @@ if(!screens.has(destination))continue;
 const chip=document.createElement('button');
 chip.className='chip nav';
 chip.id='nav-'+destination;
-chip.textContent=destination;
+chip.textContent=t(destination);
 const current=(destination==='EDIT')===state.editing&&state.screen==='CHAIN';
 chip.setAttribute('aria-pressed',String(current));
 chip.disabled=!state.connected;
@@ -313,7 +328,7 @@ const badge=document.createElement('button');
 badge.className='chip badge';
 badge.id='bank-badge';
 badge.textContent=mode.badge;
-badge.title=mode.detail||'which bank the pedal is playing';
+badge.title=mode.detail||t('which bank the pedal is playing');
 badge.disabled=!state.connected;
 badge.addEventListener('click',function(){
 openBankPicker();
@@ -327,18 +342,25 @@ row.appendChild(detail);
 }
 function editMode(){
 if(!state.connected){
-return{badge:'no pedal',detail:'Plug the pedal in to edit live.',live:false,needsDeclaration:false};
+return{
+badge:t('no pedal'),
+detail:t('Plug the pedal in to edit live.'),
+live:false,
+needsDeclaration:false,
+};
 }
 const live=state.activePreset===state.soundingPreset;
-const bank=state.soundingConfirmed?slotName(state.soundingPreset):'bank?';
+const bank=state.soundingConfirmed?slotName(state.soundingPreset):t('bank?');
 const detail=!state.soundingConfirmed
-?'Tap to say which bank the pedal is playing.'
+?t('Tap to say which bank the pedal is playing.')
 :live
 ?''
-:'The pedal plays '+slotName(state.soundingPreset)+', so SAVE writes '+
-slotName(state.activePreset)+' to it.';
+:t('The pedal plays {bank}, so SAVE writes {target} to it.',{
+bank:slotName(state.soundingPreset),
+target:slotName(state.activePreset),
+});
 return{
-badge:bank+' · '+(live?'live':'on SAVE'),
+badge:t('{bank} · {mode}',{bank:bank,mode:live?t('live'):t('on SAVE')}),
 detail:detail,
 live:live,
 needsDeclaration:!state.soundingConfirmed,
@@ -373,17 +395,17 @@ if(typeof dialog.close==='function')dialog.close();
 else dialog.removeAttribute('open');
 }
 function editLockReason(){
-if(!state.connected)return'no pedal connected';
-if(state.pedalRead==='READING')return'reading A, B and C from the pedal';
-if(state.pedalRead==='FAILED')return'the presets could not be read';
-if(session!==null&&session.cabinetBusy)return'the pedal is loading its cabinet';
-if(state.busy)return'another action is still finishing';
+if(!state.connected)return t('no pedal connected');
+if(state.pedalRead==='READING')return t('reading A, B and C from the pedal');
+if(state.pedalRead==='FAILED')return t('the presets could not be read');
+if(session!==null&&session.cabinetBusy)return t('the pedal is loading its cabinet');
+if(state.busy)return t('another action is still finishing');
 return null;
 }
 function paintLock(){
 const line=byId('edit-lock');
 const reason=editLockReason();
-line.textContent=reason===null?'':'Live edits are paused — '+reason;
+line.textContent=reason===null?'':t('Live edits are paused — {reason}',{reason:reason});
 line.hidden=reason===null;
 }
 function where(){
@@ -441,9 +463,10 @@ mountedKey=key;
 const notice=document.createElement('p');
 notice.className='notice';
 notice.id='screen-missing';
-notice.textContent=
-'This screen is not on this page: '+wanted.toLowerCase()+' is a module of its own '+
-'(ui-'+wanted.toLowerCase()+'.js), which this build does not ship.';
+notice.textContent=t(
+'This screen is not on this page: {screen} is a module of its own (ui-{screen}.js), which this build does not ship.',
+{screen:wanted.toLowerCase()}
+);
 host.appendChild(notice);
 }
 }
@@ -466,7 +489,7 @@ paintScreen();
 paintStatus();
 }
 async function perform(label,action){
-if(state.busy)return{ok:false,error:new Error('another action is still finishing')};
+if(state.busy)return{ok:false,error:new Error(t('another action is still finishing'))};
 state.busy=true;
 render();
 try{
@@ -514,11 +537,11 @@ autoReadFor=mark;
 if(session===null)return;
 state.pedalRead='READING';
 render();
-const result=await perform('reading the presets',function(){
+const result=await perform(t('reading the presets'),function(){
 return session.readPresets();
 });
 state.pedalRead=result.ok?'READY':'FAILED';
-if(result.ok)status('read the three presets: memory 0x05, address 0, 48 bytes','ok');
+if(result.ok)status(t('read the three presets: memory 0x05, address 0, 48 bytes'),'ok');
 else guidance(GUIDANCE.READ_THE_PEDAL_FIRST());
 render();
 }
@@ -534,14 +557,21 @@ if(current.kind==='Ready')autoRead(current);
 function start(){
 byId('connect').addEventListener('click',async function(){
 if(link===null){
-status('transport.js is not loaded: there is no Web MIDI link on this page','error');
+status(t('transport.js is not loaded: there is no Web MIDI link on this page'),'error');
 return;
 }
-status('asking the browser for MIDI access, including SysEx…','');
+status(t('asking the browser for MIDI access, including SysEx…'),'');
 const current=await link.connect();
 render();
 if(current.kind==='Ready'){
-status('the pedal answered as "'+current.name+'" on '+current.outputName+' → '+current.inputName,'ok');
+status(
+t('the pedal answered as "{name}" on {output} → {input}',{
+name:current.name,
+output:current.outputName,
+input:current.inputName,
+}),
+'ok'
+);
 }else{
 status(current.kind+(current.reason?' ('+current.reason+')':'')+': '+current.message,'error');
 }
@@ -550,7 +580,7 @@ byId('diagnose').addEventListener('click',async function(){
 const pane=byId('link-diagnosis');
 pane.textContent='';
 if(link===null){
-status('transport.js is not loaded: there is nothing to probe','error');
+status(t('transport.js is not loaded: there is nothing to probe'),'error');
 return;
 }
 let rows;
@@ -565,25 +595,28 @@ const line=document.createElement('div');
 line.className='pair';
 line.setAttribute('data-ok',row.name===null?'0':'1');
 line.textContent=
-(row.name===null?'SILENT  ':'ANSWER  ')+
+(row.name===null?t('SILENT')+'  ':t('ANSWER')+'  ')+
 row.outputName+' → '+row.inputName+': '+
-(row.name===null?row.error||'no answer':'"'+row.name+'"');
+(row.name===null?row.error||t('no answer'):'"'+row.name+'"');
 pane.appendChild(line);
 log(row.name===null?'failed':'link',line.textContent);
 }
 const answering=rows.filter((row)=>row.name!==null).length;
 status(
-'diagnose: '+rows.length+' pair(s) asked, '+answering+' answered with a name',
+t('diagnose: {asked} pair(s) asked, {answered} answered with a name',{
+asked:rows.length,
+answered:answering,
+}),
 answering===0?'error':'ok'
 );
 });
 byId('read-presets').addEventListener('click',async function(){
 if(session===null)return;
-const result=await perform('reading the presets',function(){
+const result=await perform(t('reading the presets'),function(){
 return session.readPresets();
 });
 state.pedalRead=result.ok?'READY':'FAILED';
-if(result.ok)status('read the three presets: memory 0x05, address 0, 48 bytes','ok');
+if(result.ok)status(t('read the three presets: memory 0x05, address 0, 48 bytes'),'ok');
 render();
 });
 byId('out-port').addEventListener('change',onPortChange);
@@ -601,13 +634,16 @@ dismissGuidance();
 byId('pick-bank-cancel').addEventListener('click',function(){
 closeDialog(byId('pick-bank'));
 });
+document.addEventListener('rigshade:locale',function(){
+render();
+});
 wireLink();
 render();
 }
 function onPortChange(){
 if(link===null)return;
 link.select(byId('out-port').value,byId('in-port').value);
-status('the pair was chosen by hand and has not been verified: press CONNECT to ask it its name','');
+status(t('the pair was chosen by hand and has not been verified: press CONNECT to ask it its name'),'');
 render();
 }
 return{start:start,render:render,renderNav:renderNav,ctx:ctx,state:state};

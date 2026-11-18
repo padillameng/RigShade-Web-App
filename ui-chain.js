@@ -4,6 +4,14 @@ const P=global.RigShadeProtocol;
 const UI=global.RigShadeUI;
 if(!P)throw new Error('ui-chain.js needs protocol.js');
 if(!UI)throw new Error('ui-chain.js needs app.js');
+function t(text,vars){
+const layer=global.RigShadeI18n;
+if(layer&&typeof layer.t==='function')return layer.t(text,vars);
+if(!vars)return text;
+return String(text).replace(/\{(\w+)\}/g,function(match,name){
+return Object.prototype.hasOwnProperty.call(vars,name)?String(vars[name]):match;
+});
+}
 const TYPE=0;
 const GAIN=1;
 const TONE=2;
@@ -31,7 +39,9 @@ const BLOCKS=[
 {id:'CAB_IR',title:'CAB / IR',swap:CAB_SW,params:[IR,REVERB]},
 {id:'VOLUME',title:'VOLUME',swap:null,params:[VOLUME]},
 ];
-const USER_IR_UNKNOWN='IR 8 · user';
+function userIrUnknown(){
+return t('IR 8 · user');
+}
 const USER_SLOT_VALUE=P.CabinetNames.length-1;
 const param=function(code){
 return P.Params.byCode(code);
@@ -44,7 +54,7 @@ function valueText(code,value,irFileName){
 const p=param(code);
 if(P.Params.isOff(p,value))return'OFF';
 if(code===IR&&value===USER_SLOT_VALUE){
-return irFileName&&String(irFileName).trim()?String(irFileName):USER_IR_UNKNOWN;
+return irFileName&&String(irFileName).trim()?String(irFileName):userIrUnknown();
 }
 return P.describe(code,value);
 }
@@ -101,7 +111,9 @@ node.appendChild(el('span','dial-pointer'));
 if(p.neutral!==null)node.classList.toggle('off',P.Params.isOff(p,value));
 return node;
 }
-const NOTHING_READ='No pedal values yet: press READ PRESETS, or CONNECT to read A, B and C.';
+function nothingRead(){
+return t('No pedal values yet: press READ PRESETS, or CONNECT to read A, B and C.');
+}
 function mountChain(root,ctx){
 const head=el('p','chain-order','IN → AMP → MOD → DELAY → REVERB → IR → OUT');
 const board=el('div','board');
@@ -120,17 +132,17 @@ board.appendChild(buildOutput(ctx));
 board.appendChild(el('div','cable'));
 const bar=el('div','bar');
 bar.setAttribute('data-bar','chain');
-const save=el('button','save','SAVE');
+const save=el('button','save',t('SAVE'));
 save.setAttribute('data-action','chain-save');
 save.addEventListener('click',function(){
 saveChain(ctx);
 });
-const reset=el('button','danger','RESET');
+const reset=el('button','danger',t('RESET'));
 reset.setAttribute('data-action','chain-reset');
 reset.addEventListener('click',function(){
 openReset(ctx,root);
 });
-const undo=el('button',null,'UNDO');
+const undo=el('button',null,t('UNDO'));
 undo.setAttribute('data-action','chain-undo');
 undo.addEventListener('click',function(){
 undoReset(ctx);
@@ -144,30 +156,36 @@ bar.appendChild(el('span','spacer'));
 bar.appendChild(stateLine);
 const confirm=el('dialog');
 confirm.setAttribute('data-dialog','reset');
-confirm.appendChild(el('h3',null,'Factory reset'));
-confirm.appendChild(
-el(
+const confirmTitle=el('h3',null,t('Factory reset'));
+confirmTitle.setAttribute('data-reset-title','1');
+confirm.appendChild(confirmTitle);
+const confirmBody=el(
 'p',
 null,
+t(
 'RESET writes the documented initial values into all three memories, not the presets the pedal '+
 'shipped with. The block the pedal holds now is read and kept first, so UNDO can put it back.'
 )
 );
-confirm.appendChild(
-el(
+confirmBody.setAttribute('data-reset-body','1');
+confirm.appendChild(confirmBody);
+const confirmSlot=el(
 'p',
 null,
+t(
 'The pedal\'s user cabinet slot is cleared as well: the cabinet imported into it (IR 8) is '+
 'erased and the slot is left free for a new import. RESTORE puts that cabinet back.'
 )
 );
+confirmSlot.setAttribute('data-reset-body','2');
+confirm.appendChild(confirmSlot);
 const confirmRow=el('div','row');
-const cancel=el('button',null,'CANCEL');
+const cancel=el('button',null,t('CANCEL'));
 cancel.setAttribute('data-action','reset-cancel');
 cancel.addEventListener('click',function(){
 closeDialog(confirm);
 });
-const go=el('button','danger','RESET');
+const go=el('button','danger',t('RESET'));
 go.setAttribute('data-action','reset-confirm');
 go.addEventListener('click',function(){
 closeDialog(confirm);
@@ -190,7 +208,7 @@ const headRow=el('div','box-head');
 if(stage.toggle!==null){
 const led=el('button','led');
 led.setAttribute('data-led',stage.name);
-led.title='switch '+stage.label;
+led.title=t('switch {stage}',{stage:stage.label});
 led.addEventListener('click',function(event){
 event.stopPropagation();
 toggle(ctx,stage.toggle,stage.swap);
@@ -206,7 +224,7 @@ toggle(ctx,stage.toggle,stage.swap);
 });
 }
 headRow.appendChild(name);
-const edit=el('span','box-edit','EDIT');
+const edit=el('span','box-edit',t('EDIT'));
 edit.setAttribute('data-edit',stage.name);
 edit.addEventListener('click',function(event){
 event.stopPropagation();
@@ -266,9 +284,9 @@ notice.textContent=
 values===null
 ?''
 :!blockOn(values,stage.swap)
-?'block off'
+?t('block off')
 :blockEmpty(values,stage.swap)
-?'block empty'
+?t('block empty')
 :'';
 }
 const volume=card.querySelector('[data-knob="'+VOLUME+'"]');
@@ -283,14 +301,90 @@ const canUndo=ctx.session!==null&&ctx.session.presetBackup!==null;
 undo.hidden=!canUndo;
 undo.disabled=locked||!canUndo;
 const line=bar.querySelector('[data-shell="chain-status"]');
-line.textContent=values===null?(ctx.state.connected?'reading the pedal…':NOTHING_READ):statusText(ctx);
+line.textContent=values===null
+?(ctx.state.connected?t('reading the pedal…'):nothingRead())
+:statusText(ctx);
 line.setAttribute('data-kind',ctx.state.statusKind||'none');
+paintChainText(root);
 }
 function statusText(ctx){
-if(ctx.state.busy)return'Working…';
+if(ctx.state.busy)return t('Working…');
 if(ctx.state.status)return ctx.state.status;
-if(ctx.session!==null&&ctx.session.dirty)return'Unsaved changes';
-return'Saved';
+if(ctx.session!==null&&ctx.session.dirty)return t('Unsaved changes');
+return t('Saved');
+}
+function paintChainText(root){
+const bar=root.querySelector('[data-bar="chain"]');
+if(bar!==null){
+bar.querySelector('[data-action="chain-save"]').textContent=t('SAVE');
+bar.querySelector('[data-action="chain-reset"]').textContent=t('RESET');
+bar.querySelector('[data-action="chain-undo"]').textContent=t('UNDO');
+}
+for(const edit of root.querySelectorAll('[data-edit]'))edit.textContent=t('EDIT');
+for(const stage of STAGES){
+const led=root.querySelector('[data-led="'+stage.name+'"]');
+if(led!==null)led.title=t('switch {stage}',{stage:stage.label});
+}
+const confirm=root.querySelector('[data-dialog="reset"]');
+if(confirm!==null){
+const bodies=confirm.querySelectorAll('[data-reset-body]');
+if(bodies.length===2){
+bodies[0].textContent=t(
+'RESET writes the documented initial values into all three memories, not the presets the pedal shipped with. The block the pedal holds now is read and kept first, so UNDO can put it back.'
+);
+bodies[1].textContent=t(
+'The pedal\'s user cabinet slot is cleared as well: the cabinet imported into it (IR 8) is erased and the slot is left free for a new import. RESTORE puts that cabinet back.'
+);
+}
+}
+paintDialogChrome(root);
+}
+function paintEditorText(root){
+const sheet=root.querySelector('[data-editor]');
+if(sheet===null)return;
+sheet.querySelector('[data-action="save"]').textContent=t('SAVE');
+sheet.querySelector('[data-action="editor-reset"]').textContent=t('RESET');
+sheet.querySelector('[data-action="editor-undo"]').textContent=t('UNDO');
+for(const knob of sheet.querySelectorAll('.knob')){
+const label=knob.querySelector('.knob-label');
+const value=knob.querySelector('.value-box');
+if(value!==null)value.title=t('type an exact value');
+if(label!==null&&label.title){
+const code=Number(knob.getAttribute('data-knob'));
+label.title=t('tap to switch {param} off and back on',{param:param(code).label});
+}
+}
+const confirm=sheet.querySelector('[data-dialog="reset"]');
+if(confirm!==null){
+const bodies=confirm.querySelectorAll('[data-reset-body]');
+if(bodies.length===2){
+bodies[0].textContent=t(
+'RESET writes the documented initial values into all three memories. The block the pedal holds now is kept, so UNDO can put it back.'
+);
+bodies[1].textContent=t(
+'The pedal\'s user cabinet slot is cleared as well: the cabinet imported into it (IR 8) is erased and the slot is left free for a new import. RESTORE puts that cabinet back.'
+);
+}
+}
+paintDialogChrome(sheet);
+}
+function paintDialogChrome(root){
+const confirm=root.querySelector('[data-dialog="reset"]');
+if(confirm!==null){
+const title=confirm.querySelector('[data-reset-title]');
+if(title!==null)title.textContent=t('Factory reset');
+const cancel=confirm.querySelector('[data-action="reset-cancel"]');
+if(cancel!==null)cancel.textContent=t('CANCEL');
+const go=confirm.querySelector('[data-action="reset-confirm"]');
+if(go!==null)go.textContent=t('RESET');
+}
+const exact=root.querySelector('[data-dialog="exact"]');
+if(exact!==null){
+const title=exact.querySelector('.exact-title');
+if(title!==null&&!exact.open)title.textContent=t('value');
+const ok=exact.querySelector('[data-exact-ok]');
+if(ok!==null)ok.textContent=t('OK');
+}
 }
 function paintKnob(knob,code,value,on,irFileName,locked){
 const p=param(code);
@@ -311,11 +405,11 @@ ctx.go('EDIT');
 }
 async function saveChain(ctx){
 if(ctx.session===null)return;
-const result=await ctx.perform('saving',function(){
+const result=await ctx.perform(t('saving'),function(){
 return ctx.session.savePresets();
 });
 if(result.ok){
-ctx.status('the three presets were written and read back identical','ok');
+ctx.status(t('the three presets were written and read back identical'),'ok');
 }else{
 ctx.guidance(UI.guidanceTable.SAVE_NOT_CONFIRMED());
 }
@@ -326,7 +420,7 @@ openDialog(dialog);
 }
 async function applyReset(ctx){
 if(ctx.session===null)return;
-const result=await ctx.perform('factory reset',function(){
+const result=await ctx.perform(t('factory reset'),function(){
 return ctx.session.resetPresets();
 });
 if(!result.ok)return;
@@ -336,7 +430,7 @@ ctx.setState({irFileName:null,cabinetRead:report.slot.outcome!=='NOT_CLEARED'});
 }
 async function undoReset(ctx){
 if(ctx.session===null)return;
-const result=await ctx.perform('undo',function(){
+const result=await ctx.perform(t('undo'),function(){
 return ctx.session.undoReset();
 });
 if(result.ok)ctx.status(result.value.line,'ok');
@@ -353,17 +447,27 @@ ctx.status(heldNotice(ctx,'editing'),'error');
 ctx.guidance(UI.guidanceTable.EDIT_HELD({edited:ctx.state.activePreset,sounding:ctx.state.soundingPreset}));
 return false;
 }
-const result=await ctx.perform('writing '+p.label,function(){
+const result=await ctx.perform(t('writing {param}',{param:p.label}),function(){
 return ctx.session.writeLiveParam(ctx.state.activePreset,code,wanted);
 });
-if(result.ok)ctx.status(p.label+' = '+wanted+' ('+valueText(code,wanted,ctx.state.irFileName)+') sent to live memory','ok');
+if(result.ok){
+ctx.status(
+t('{param} = {value} ({name}) sent to live memory',{
+param:p.label,
+value:wanted,
+name:valueText(code,wanted,ctx.state.irFileName),
+}),
+'ok'
+);
+}
 return result.ok;
 }
 function heldNotice(ctx,verb){
-return(
-verb+' '+slotName(ctx.state.activePreset)+' while the pedal sounds '+
-slotName(ctx.state.soundingPreset)+': nothing was sent live'
-);
+return t('{verb} {edited} while the pedal sounds {sounding}: nothing was sent live',{
+verb:verb,
+edited:slotName(ctx.state.activePreset),
+sounding:slotName(ctx.state.soundingPreset),
+});
 }
 async function toggle(ctx,code,swap){
 const values=valuesOf(ctx);
@@ -402,17 +506,17 @@ blocks.setAttribute('data-editor-blocks','1');
 for(const block of BLOCKS)blocks.appendChild(mountBlockPanel(ctx,sheet,block));
 sheet.appendChild(blocks);
 const bar=el('div','bar');
-const save=el('button','save','SAVE');
+const save=el('button','save',t('SAVE'));
 save.setAttribute('data-action','save');
 save.addEventListener('click',function(){
 saveChain(ctx);
 });
-const reset=el('button','danger','RESET');
+const reset=el('button','danger',t('RESET'));
 reset.setAttribute('data-action','editor-reset');
 reset.addEventListener('click',function(){
 openReset(ctx,root);
 });
-const undo=el('button',null,'UNDO');
+const undo=el('button',null,t('UNDO'));
 undo.setAttribute('data-action','editor-undo');
 undo.addEventListener('click',function(){
 undoReset(ctx);
@@ -427,24 +531,33 @@ bar.appendChild(dirty);
 sheet.appendChild(bar);
 const confirm=el('dialog');
 confirm.setAttribute('data-dialog','reset');
-confirm.appendChild(el('h3',null,'Factory reset'));
-confirm.appendChild(
-el('p',null,'RESET writes the documented initial values into all three memories. The block the pedal holds now is kept, so UNDO can put it back.')
-);
-confirm.appendChild(
-el(
+const confirmTitle=el('h3',null,t('Factory reset'));
+confirmTitle.setAttribute('data-reset-title','1');
+confirm.appendChild(confirmTitle);
+const confirmBody=el(
 'p',
 null,
+t('RESET writes the documented initial values into all three memories. The block the pedal holds now is kept, so UNDO can put it back.')
+);
+confirmBody.setAttribute('data-reset-body','1');
+confirm.appendChild(confirmBody);
+const confirmSlot=el(
+'p',
+null,
+t(
 'The pedal\'s user cabinet slot is cleared as well: the cabinet imported into it (IR 8) is erased '+
 'and the slot is left free for a new import. RESTORE puts that cabinet back.'
 )
 );
+confirmSlot.setAttribute('data-reset-body','2');
+confirm.appendChild(confirmSlot);
 const confirmRow=el('div','row');
-const cancel=el('button',null,'CANCEL');
+const cancel=el('button',null,t('CANCEL'));
+cancel.setAttribute('data-action','reset-cancel');
 cancel.addEventListener('click',function(){
 closeDialog(confirm);
 });
-const go=el('button','danger','RESET');
+const go=el('button','danger',t('RESET'));
 go.setAttribute('data-action','reset-confirm');
 go.addEventListener('click',function(){
 closeDialog(confirm);
@@ -504,7 +617,7 @@ led.classList.toggle('on',on);
 led.disabled=locked;
 led.hidden=block.swap===null;
 panel.querySelector('[data-block-title]').style.color=on?'var(--mist)':'var(--secondary)';
-panel.querySelector('[data-block-note]').textContent=!on&&block.swap!==null?'block off':'';
+panel.querySelector('[data-block-note]').textContent=!on&&block.swap!==null?t('block off'):'';
 panel.classList.toggle('focus',block.id===ctx.state.block);
 for(const code of block.params){
 const knob=panel.querySelector('[data-knob="'+code+'"]');
@@ -516,6 +629,10 @@ drawing.style.setProperty('--frac',String(value===null?0:fractions(code,value)))
 drawing.classList.toggle('off',isOff||value===null);
 drawing.classList.toggle('dim',!on);
 knob.querySelector('.knob-label').style.color=on&&!isOff?'var(--mist)':'var(--secondary)';
+if(p.neutral!==null){
+knob.querySelector('.knob-label').title=t('tap to switch {param} off and back on',{param:p.label});
+}
+knob.querySelector('.value-box').title=t('type an exact value');
 knob.querySelector('.value-box').textContent=value===null?'—':valueText(code,value,ctx.state.irFileName);
 knob.setAttribute('aria-disabled',String(!on||locked));
 }
@@ -530,7 +647,12 @@ undo.hidden=!canUndo;
 undo.disabled=locked||!canUndo;
 const saveState=sheet.querySelector('[data-shell="save-state"]');
 saveState.textContent=
-values===null?(ctx.state.connected?'reading the pedal…':'no pedal values'):ctx.session.dirty?'unsaved changes':'saved';
+values===null
+?(ctx.state.connected?t('reading the pedal…'):t('no pedal values'))
+:ctx.session.dirty
+?t('unsaved changes')
+:t('saved');
+paintEditorText(root);
 }
 function buildParamKnob(ctx,sheet,code){
 const p=param(code);
@@ -539,7 +661,7 @@ knob.setAttribute('data-knob',String(code));
 const label=el('span','knob-label',p.label);
 label.setAttribute('data-label',String(code));
 if(p.neutral!==null){
-label.title='tap to switch '+p.label+' off and back on';
+label.title=t('tap to switch {param} off and back on',{param:p.label});
 label.addEventListener('click',function(){
 if(knob.getAttribute('aria-disabled')==='true')return;
 toggle(ctx,code,null);
@@ -598,7 +720,7 @@ knob.removeAttribute('data-pending');
 });
 const box=el('span','value-box knob-value','—');
 box.setAttribute('data-value',String(code));
-box.title='type an exact value';
+box.title=t('type an exact value');
 box.addEventListener('click',function(){
 if(knob.getAttribute('aria-disabled')==='true')return;
 openExact(ctx,sheet,code);
@@ -614,7 +736,7 @@ return knob;
 function buildExactDialog(){
 const exact=el('dialog');
 exact.setAttribute('data-dialog','exact');
-exact.appendChild(el('h3','exact-title','value'));
+exact.appendChild(el('h3','exact-title',t('value')));
 const exactRange=el('input');
 exactRange.type='range';
 exactRange.setAttribute('data-exact-slider','1');
@@ -624,7 +746,7 @@ exactField.setAttribute('data-exact-field','1');
 const exactName=el('p','exact-name');
 exactName.setAttribute('data-exact-name','1');
 const exactRow=el('div','row');
-const exactOk=el('button',null,'OK');
+const exactOk=el('button',null,t('OK'));
 exactOk.setAttribute('data-exact-ok','1');
 exactOk.addEventListener('click',function(){
 closeDialog(exact);
@@ -681,15 +803,15 @@ if(mic===null)return;
 mic.textContent='';
 const placement=placementOf(ctx,values);
 const row=el('div','row');
-const read=el('button',null,'READ CABINET');
+const read=el('button',null,t('READ CABINET'));
 read.setAttribute('data-action','read-cabinet');
 read.disabled=!ctx.state.connected||ctx.state.busy;
 read.addEventListener('click',async function(){
-const result=await ctx.perform('reading the cabinet',function(){
+const result=await ctx.perform(t('reading the cabinet'),function(){
 return ctx.session.readCabinet();
 });
 ctx.setState({cabinetRead:result.ok});
-if(result.ok)ctx.status('read the pedal\'s cabinet slot (0x00070000, 37 chunks of 113 bytes)','ok');
+if(result.ok)ctx.status(t('read the pedal\'s cabinet slot (0x00070000, 37 chunks of 113 bytes)'),'ok');
 });
 row.appendChild(read);
 if(placement.slider){
@@ -705,7 +827,7 @@ slider.setAttribute('data-mic-slider','1');
 slider.disabled=!ctx.state.connected||ctx.state.busy;
 slider.addEventListener('change',async function(){
 const percent=Number(slider.value);
-const result=await ctx.perform('moving MIC DIST',function(){
+const result=await ctx.perform(t('moving MIC DIST'),function(){
 return ctx.session.moveDistance(percent);
 });
 if(result.ok){
@@ -718,7 +840,7 @@ mic.appendChild(slider);
 }else{
 const line=el('span','mic-refusal',placement.inline);
 line.setAttribute('data-mic-refusal','1');
-const why=el('button',null,'WHY');
+const why=el('button',null,t('WHY'));
 why.setAttribute('data-action','mic-why');
 why.addEventListener('click',function(){
 ctx.guidance(placement.popup());
@@ -735,14 +857,14 @@ const held=ctx.session!==null?ctx.session.held:null;
 const irValue=values===null?0:values[IR];
 const soundingIr=ctx.session===null||ctx.session.presets===null?0:ctx.session.presets[sounding][IR];
 if(!state.connected){
-return{slider:false,inline:'no pedal connected',popup:UI.guidanceTable.PEDAL_NOT_CONNECTED};
+return{slider:false,inline:t('no pedal connected'),popup:UI.guidanceTable.PEDAL_NOT_CONNECTED};
 }
 if(state.activePreset!==sounding){
 const imported=soundingIr===USER_SLOT_VALUE&&held!==null;
 return{
 slider:imported&&state.cabinetRead,
 percent:held===null?0:held.distance,
-inline:'the pedal sounds '+slotName(sounding),
+inline:t('the pedal sounds {bank}',{bank:slotName(sounding)}),
 popup:function(){
 return UI.guidanceTable.MIC_DIST_OTHER_BANK({sounding:sounding,edited:state.activePreset});
 },
@@ -751,7 +873,7 @@ return UI.guidanceTable.MIC_DIST_OTHER_BANK({sounding:sounding,edited:state.acti
 if(soundingIr===0){
 return{
 slider:false,
-inline:'bank '+slotName(sounding)+' has IR off',
+inline:t('bank {bank} has IR off',{bank:slotName(sounding)}),
 popup:function(){
 return UI.guidanceTable.MIC_DIST_IR_OFF({sounding:sounding});
 },
@@ -760,7 +882,7 @@ return UI.guidanceTable.MIC_DIST_IR_OFF({sounding:sounding});
 if(soundingIr>=1&&soundingIr<=7){
 return{
 slider:false,
-inline:'bank '+slotName(sounding)+' plays factory cabinet '+soundingIr,
+inline:t('bank {bank} plays factory cabinet {cabinet}',{bank:slotName(sounding),cabinet:soundingIr}),
 popup:function(){
 return UI.guidanceTable.MIC_DIST_FACTORY_CABINET({sounding:sounding,irValue:soundingIr});
 },
@@ -769,7 +891,7 @@ return UI.guidanceTable.MIC_DIST_FACTORY_CABINET({sounding:sounding,irValue:soun
 if(!state.cabinetRead){
 return{
 slider:false,
-inline:'cabinet not read',
+inline:t('cabinet not read'),
 popup:function(){
 return UI.guidanceTable.CABINET_UNREAD();
 },
@@ -778,7 +900,7 @@ return UI.guidanceTable.CABINET_UNREAD();
 if(held===null){
 return{
 slider:false,
-inline:'no cabinet in the slot',
+inline:t('no cabinet in the slot'),
 popup:function(){
 return UI.guidanceTable.CABINET_EMPTY({sounding:sounding});
 },

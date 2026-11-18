@@ -1,0 +1,772 @@
+(function(){
+'use strict';
+var LOCALES=['en','es','pt'];
+var DEFAULT_LOCALE='en';
+var STORAGE_KEY='rigshade.lang';
+var MISSING_ATTRIBUTE='data-i18n-missing';
+var EVENT_NAME='rigshade:locale';
+var es={
+'RigShade WebApp':'RigShade WebApp',
+'RigShade WebApp — the Cube Baby\'s three presets, its chain and its whole editor, from a desktop browser over USB-MIDI.':'RigShade WebApp — los tres presets del Cube Baby, su cadena y todo su editor, desde el navegador de un ordenador por USB-MIDI.',
+'Link':'Enlace',
+'CONNECT':'CONECTAR',
+'DIAGNOSE':'DIAGNOSTICAR',
+'asks every candidate port pair its name and prints one line per pair':'pregunta su nombre a cada par de puertos candidato e imprime una línea por par',
+'READ PRESETS':'LEER PRESETS',
+'Output':'Salida',
+'Input':'Entrada',
+'Pedal':'Pedal',
+'Wire':'Registro',
+'CLEAR':'LIMPIAR',
+'OK':'OK',
+'Which bank is playing?':'¿Qué banco está sonando?',
+'Tap the bank the pedal\'s own A/B/C switch is on. That bank is heard live; the others reach the pedal when you press SAVE.':'Toca el banco en el que está el selector A/B/C del propio pedal. Ese banco se escucha en vivo; los demás llegan al pedal cuando pulsas SAVE.',
+'Cancel':'Cancelar',
+'Testers':'Probadores',
+'Android app · closed testing':'App de Android · prueba cerrada',
+'We are running a small closed test of the Android app — the same three presets, the same chain and the same editor, on a phone, over USB-C — to see how it actually feels to use straight from Android: the taps, the swipe, the control that ends up one thumb too far. Your own experience is the part we cannot get any other way, so we would love to count you in. Leave the address where the promo code for the build should go, and we will write to you.':'Estamos haciendo una prueba cerrada pequeña de la app de Android —los mismos tres presets, la misma cadena y el mismo editor, en un teléfono, por USB-C— para ver cómo se siente usarla directamente desde Android: los toques, el deslizamiento, el control que acaba un pulgar demasiado lejos. Tu propia experiencia es la parte que no podemos conseguir de otra forma, así que nos encantaría contar contigo. Déjanos la dirección donde quieres recibir el código promocional de la versión, y te escribimos.',
+'Joining now also means keeping it: whoever picks the app up during the promotional stage uses it free of charge from then on — no subscription, no payment later.':'Entrar ahora también significa quedártela: quien recoja la app durante la etapa promocional la usa gratis desde ese momento — sin suscripción y sin pagos después.',
+'Email for the promo code':'Correo para el código promocional',
+'you@gmail.com':'you@gmail.com',
+'Phone model':'Modelo de teléfono',
+'Pixel 7':'Pixel 7',
+'Android version':'Versión de Android',
+'15':'15',
+'Anything else':'Algo más',
+'(optional)':'(opcional)',
+'The pedal you have, your amp, and what you want to test':'El pedal que tienes, tu amplificador y lo que quieres probar',
+'You send it, we receive it.':'Lo envías tú, lo recibimos nosotros.',
+'The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the code sent to.':'El botón abre tu propia aplicación de correo con el mensaje ya escrito al buzón de RigShade — nada sale de esta página hasta que pulsas enviar allí, y el mensaje no se publica en ningún sitio. Usa la dirección a la que quieres que llegue el código.',
+'Request a seat':'Pedir una plaza',
+'The tester intake is being set up.':'La recepción de testers se está preparando.',
+'GET IT ON':'OBTENER EN',
+'Google Play':'Google Play',
+'Visit the RigShade site':'Visitar el sitio de RigShade',
+'© RigShade. All rights reserved.':'© RigShade. Todos los derechos reservados.',
+'Terms of use':'Términos de uso',
+'Privacy':'Privacidad',
+'RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE; the pedal\'s name is here only to say what this page talks to.':'RigShade es un proyecto independiente. No está afiliado a M-VAVE ni a CUVAVE, ni cuenta con su respaldo ni su patrocinio; el nombre del pedal aparece solo para decir con qué habla esta página.',
+'Language':'Idioma',
+'RigShade — terms and privacy':'RigShade — términos y privacidad',
+'RigShade WebApp: terms of use and what this page does with your data (nothing leaves the browser).':'RigShade WebApp: términos de uso y qué hace esta página con tus datos (nada sale del navegador).',
+'Last updated when this page was published.':'Última actualización: cuando se publicó esta página.',
+'Back to the control page':'Volver a la página de control',
+'RigShade Control is a free, unofficial tool for editing the three presets of a Cube Baby multi-effects pedal from a desktop browser. It is provided as it is, without warranty of any kind. It writes to the pedal flash; the page checks what it writes by reading it back, but the risk of using it stays with you, and a preset you care about should be exported first.':'RigShade Control es una herramienta gratuita y no oficial para editar los tres presets de un pedal multiefectos Cube Baby desde el navegador de un ordenador. Se ofrece tal como está, sin garantía de ningún tipo. Escribe en la memoria del pedal; la página comprueba lo que escribe leyéndolo de vuelta, pero el riesgo de usarla sigue siendo tuyo, y un preset que te importe deberías exportarlo antes.',
+'RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE. The pedal\'s name is used only to say what this page talks to.':'RigShade es un proyecto independiente. No está afiliado a M-VAVE ni a CUVAVE, ni cuenta con su respaldo ni su patrocinio. El nombre del pedal se usa solo para decir con qué habla esta página.',
+'© RigShade. All rights reserved. The name RigShade, this page\'s text and its design are not licensed for reuse. No part of this page may be republished as another product.':'© RigShade. Todos los derechos reservados. El nombre RigShade, el texto de esta página y su diseño no están licenciados para reutilización. Ninguna parte de esta página puede republicarse como otro producto.',
+'Licence':'Licencia',
+'RigShade WebApp is proprietary software: © RigShade. All rights reserved. You may open the published page in a browser and evaluate it, for your own personal and non-commercial use.':'RigShade WebApp es software propietario: © RigShade. Todos los derechos reservados. Puedes abrir la página publicada en un navegador y evaluarla, para tu uso personal y no comercial.',
+'You may not copy, redistribute or republish the page or any of its files, and you may not reuse them as part of another product or service.':'No puedes copiar, redistribuir ni republicar la página ni ninguno de sus archivos, ni reutilizarlos como parte de otro producto o servicio.',
+'The full terms — the warranty disclaimer and the third-party names — are in the':'Los términos completos — el descargo de garantía y los nombres de terceros — están en el archivo',
+'file published beside this page.':'publicado junto a esta página.',
+'This page runs in your browser. It has no account, no analytics, no cookie and no server of its own: every byte it needs is the page itself. The browser refuses any outbound request from it, so the only network traffic is the download of the page.':'Esta página se ejecuta en tu navegador. No tiene cuenta, ni analítica, ni cookies, ni servidor propio: cada byte que necesita es la propia página. El navegador rechaza cualquier petición saliente desde ella, así que el único tráfico de red es la descarga de la página.',
+'Your presets and the bank you build stay on your computer, in this browser\'s':'Tus presets y el banco que construyes se quedan en tu ordenador, en el',
+'and nowhere else. Clearing site data deletes them.':'de este navegador y en ningún otro sitio. Borrar los datos del sitio los elimina.',
+'The page asks the browser for permission to use Web MIDI, which is what reaches the pedal over USB. That permission is the browser\'s, not ours. The only device the page talks to is the one you pick in the Link panel.':'La página pide permiso al navegador para usar Web MIDI, que es lo que llega al pedal por USB. Ese permiso es del navegador, no nuestro. El único dispositivo con el que habla la página es el que eliges en el panel de enlace.',
+'The tester form at the end of the control page is the one thing here that goes past that: it writes a message to the project\'s mailbox (':'El formulario de testers al final de la página de control es lo único que va más allá: escribe un mensaje al buzón del proyecto (',
+') and hands it to your own email app, so nothing is sent until you press send there. This page itself sends nothing and stores nothing. Once you send it, the message is kept in that inbox under our own terms — and in your own sent mail, under your provider\'s.':') y lo entrega a tu propia aplicación de correo, así que no se envía nada hasta que pulsas enviar allí. Esta página no envía ni guarda nada. Una vez enviado, el mensaje se conserva en ese buzón según nuestros términos — y en tu propio correo enviado, según los de tu proveedor.',
+'RigShade beta tester request — {device}':'Solicitud de tester de RigShade — {device}',
+'Beta tester request':'Solicitud de tester',
+'Email for the promo code: {value}':'Correo para el código promocional: {value}',
+'Phone: {value}':'Teléfono: {value}',
+'Android: {value}':'Android: {value}',
+'Anything else:':'Algo más:',
+'(not given)':'(sin datos)',
+'(nothing added)':'(nada añadido)',
+'Sent from the RigShade control page.':'Enviado desde la página de control de RigShade.',
+'Opening your email app — the message goes to {mailbox}.':'Abriendo tu aplicación de correo — el mensaje va a {mailbox}.',
+'"{name}" carries no cabinet':'"{name}" no lleva gabinete',
+'"{name}" could not be written: {reason}':'no se pudo escribir "{name}": {reason}',
+'"{name}" is applied to the preset you choose. A load writes live memory only: SAVE is what makes it survive a power cycle.':'"{name}" se aplica al preset que elijas. Una carga escribe solo en la memoria en vivo: lo que la hace sobrevivir a un apagado es SAVE.',
+'(empty name)':'(sin nombre)',
+'(no name)':'(sin nombre)',
+'(unnamed)':'(sin nombre)',
+'37 chunks of 113 bytes, 40 ms apart — the read the pedal was measured to tolerate':'37 bloques de 113 bytes, con 40 ms entre ellos — la lectura que el pedal toleró en la medición',
+'ANSWER':'RESPONDE',
+'ARCHETYPE':'ARQUETIPO',
+'ARTIST':'ARTISTA',
+'BACK':'VOLVER',
+'BANK':'BANCO',
+'Bank {bank} has no cabinet':'El banco {bank} no tiene gabinete',
+'Bank {bank} plays factory cabinet {cabinet}. MIC DIST only moves your imported cabinet — press IMPORT IR first.':'El banco {bank} usa el gabinete de fábrica {cabinet}. MIC DIST solo mueve tu gabinete importado — pulsa IMPORTAR IR primero.',
+'Bank {bank} selects cabinet 8 and the pedal\'s slot is empty. Press IMPORT IR to put a cabinet there.':'El banco {bank} selecciona el gabinete 8 y la ranura del pedal está vacía. Pulsa IMPORTAR IR para poner un gabinete ahí.',
+'CABINET':'GABINETE',
+'CANCEL':'CANCELAR',
+'COLLECTION':'COLECCIÓN',
+'Cabinet not read':'Gabinete sin leer',
+'Choose a configuration from the list above, then load it into {slot}.':'Elige una configuración de la lista de arriba y cárgala en {slot}.',
+'Choose a tone above: its values, its evidence and what the pedal cannot do are shown here.':'Elige un tono arriba: aquí se ven sus valores, su evidencia y lo que el pedal no puede hacer.',
+'Configuration':'Configuración',
+'DECADE':'DÉCADA',
+'DECADE / GENRE':'DÉCADA / GÉNERO',
+'DELETE':'BORRAR',
+'DOWNLOAD JSON':'DESCARGAR JSON',
+'EDIT':'EDITAR',
+'EDIT {slot}':'EDITAR {slot}',
+'EDITING':'EDITANDO',
+'EVIDENCE':'EVIDENCIA',
+'EXPORT':'EXPORTAR',
+'EXPORT ALL':'EXPORTAR TODO',
+'Edit held for bank {bank}':'Edición retenida: banco {bank}',
+'Factory reset':'Restablecer de fábrica',
+'GENERATE':'GENERAR',
+'GENRE':'GÉNERO',
+'GUITAR / PICKUP':'GUITARRA / PASTILLA',
+'IMPORT':'IMPORTAR',
+'IMPORT WAV':'IMPORTAR WAV',
+'IR 8 · user':'IR 8 · usuario',
+'Import refused, nothing was sent to the pedal: {reason}':'Importación rechazada, no se envió nada al pedal: {reason}',
+'LOAD':'CARGAR',
+'LOAD INTO':'CARGAR EN',
+'LOAD INTO THE CHAIN':'CARGAR EN LA CADENA',
+'Live edits are paused — {reason}':'Las ediciones en vivo están en pausa — {reason}',
+'Load into':'Cargar en',
+'MIC DIST is for the sounding bank':'MIC DIST es del banco que suena',
+'MIC DIST needs your cabinet':'MIC DIST necesita tu gabinete',
+'MISSING EFFECTS':'EFECTOS QUE FALTAN',
+'MODULATION':'MODULACIÓN',
+'NOTES':'NOTAS',
+'Name':'Nombre',
+'No cabinet to move':'No hay gabinete que mover',
+'No pedal values yet: press READ PRESETS, or CONNECT to read A, B and C.':'Aún no hay valores del pedal: pulsa READ PRESETS, o CONNECT para leer A, B y C.',
+'Nothing saved yet. SAVE keeps the configuration the pedal is holding now.':'Todavía no hay nada guardado. SAVE guarda la configuración que el pedal tiene ahora.',
+'ORIGINAL RIG':'EQUIPO ORIGINAL',
+'PART':'PARTE',
+'Pedal not connected':'Pedal no conectado',
+'Plug the pedal in over USB, press CONNECT, then try again.':'Conecta el pedal por USB, pulsa CONNECT y vuelve a intentarlo.',
+'Plug the pedal in to edit live.':'Conecta el pedal para editar en vivo.',
+'Press READ PRESETS so the page holds A, B and C, then try again.':'Pulsa READ PRESETS para que la página tenga A, B y C, y vuelve a intentarlo.',
+'Put the previous cabinet back?':'¿Poner el gabinete anterior?',
+'READ CABINET':'LEER GABINETE',
+'RESEARCH':'INVESTIGACIÓN',
+'RESET':'RESET',
+'RESET writes the documented initial values into all three memories, not the presets the pedal shipped with. The block the pedal holds now is read and kept first, so UNDO can put it back.':'RESET escribe los valores iniciales documentados en las tres memorias, no los presets con los que salió el pedal. El bloque que el pedal tiene ahora se lee y se guarda antes, para que UNDO pueda devolverlo.',
+'RESET writes the documented initial values into all three memories. The block the pedal holds now is kept, so UNDO can put it back.':'RESET escribe los valores iniciales documentados en las tres memorias. El bloque que el pedal tiene ahora se guarda, para que UNDO pueda devolverlo.',
+'RESTORE':'RESTAURAR',
+'Read the pedal first':'Lee el pedal primero',
+'Read the pedal to save a configuration.':'Lee el pedal para guardar una configuración.',
+'Ready · {name}':'Listo · {name}',
+'SAVE':'SAVE',
+'SAVE {slot}':'SAVE {slot}',
+'SEARCH':'BUSCAR',
+'SILENT':'SILENCIO',
+'SOURCE':'FUENTE',
+'STORE IN THE BANK':'GUARDAR EN EL BANCO',
+'STYLE':'ESTILO',
+'STYLE FAMILY':'FAMILIA DE ESTILO',
+'Save not confirmed':'Guardado sin confirmar',
+'Save preset {slot}':'Guardar el preset {slot}',
+'Saved':'Guardado',
+'Stored in this browser\'s localStorage · nothing leaves this machine. {tail}':'Guardado en el localStorage de este navegador · nada sale de esta máquina. {tail}',
+'TONES':'TONOS',
+'Tap the bank badge and say which bank the pedal is playing, then load: nothing was sent':'Toca la etiqueta del banco y di qué banco está sonando el pedal, y luego carga: no se envió nada',
+'Tap to say which bank the pedal is playing.':'Toca para decir qué banco está sonando el pedal.',
+'The name is what you will read in this list. The configuration stays on this machine.':'El nombre es lo que verás en esta lista. La configuración se queda en esta máquina.',
+'The page could not read the pedal\'s cabinet. Press READ CABINET, then try again.':'La página no pudo leer el gabinete del pedal. Pulsa LEER GABINETE y vuelve a intentarlo.',
+'The page kept the {bytes} bytes that were in the slot before the last cabinet write. Writing them is the same erase-then-write, and the result is read back and compared.':'La página guardó los {bytes} bytes que había en la ranura antes de la última escritura del gabinete. Escribirlos es el mismo borrar-y-escribir, y el resultado se relee y se compara.',
+'The pedal did not read back the values. Press SAVE again; if a cabinet was involved, press RESTORE.':'El pedal no devolvió los valores. Pulsa SAVE otra vez; si hubo un gabinete, pulsa RESTAURAR.',
+'The pedal is playing {sounding}, so nothing was sent. Tap the bank badge and pick {target}.':'El pedal está sonando {sounding}, así que no se envió nada. Toca la etiqueta del banco y elige {target}.',
+'The pedal is playing {sounding}. Tap the bank badge and pick {target}, then move MIC DIST.':'El pedal está sonando {sounding}. Toca la etiqueta del banco y elige {target}, y luego mueve MIC DIST.',
+'The pedal plays {bank}, so SAVE writes {target} to it.':'El pedal suena {bank}, así que SAVE escribe {target} en él.',
+'The pedal\'s user cabinet slot is cleared as well: the cabinet imported into it (IR 8) is erased and the slot is left free for a new import. RESTORE puts that cabinet back.':'La ranura de gabinete del usuario también se borra: el gabinete importado en ella (IR 8) se elimina y la ranura queda libre para una nueva importación. RESTAURAR devuelve ese gabinete.',
+'This browser will not keep a bank for this page: {reason}. Imports and exports still work.':'Este navegador no guardará un banco para esta página: {reason}. Las importaciones y exportaciones siguen funcionando.',
+'This browser will not keep a bank for this page: {reason}. Nothing was lost — nothing was stored.':'Este navegador no guardará un banco para esta página: {reason}. No se perdió nada — no se guardó nada.',
+'This screen is not on this page: {screen} is a module of its own (ui-{screen}.js), which this build does not ship.':'Esta pantalla no está en esta página: {screen} es un módulo aparte (ui-{screen}.js), que esta versión no incluye.',
+'This tone cannot reach the pedal: {problems}':'Este tono no puede llegar al pedal: {problems}',
+'Turn IR on for bank {bank}, or import a cabinet, then move MIC DIST.':'Activa IR en el banco {bank}, o importa un gabinete, y luego mueve MIC DIST.',
+'Two ways to a preset: pick one of the researched tones of RigShade Master Package v1, or describe the sound and press GENERATE. Either way the sixteen bytes are shown before anything reaches the pedal.':'Dos caminos a un preset: elegir uno de los tonos investigados de RigShade Master Package v1, o describir el sonido y pulsar GENERAR. En ambos casos los dieciséis bytes se muestran antes de que nada llegue al pedal.',
+'UNDO':'UNDO',
+'Unsaved changes':'Cambios sin guardar',
+'WHY':'POR QUÉ',
+'WRITE':'ESCRIBIR',
+'Working…':'Trabajando…',
+'Write this cabinet?':'¿Escribir este gabinete?',
+'a preset from a description · nothing is sent until you press LOAD':'un preset a partir de una descripción · no se envía nada hasta que pulses CARGAR',
+'amp {amp} · cabinet {cabinet} · a factory cabinet, never the user slot':'amplificador {amp} · gabinete {cabinet} · un gabinete de fábrica, nunca la ranura del usuario',
+'and {count} more':'y {count} más',
+'another action is still finishing':'otra acción todavía está terminando',
+'artist, song, archetype, tag':'artista, canción, arquetipo, etiqueta',
+'asking the browser for MIDI access, including SysEx…':'pidiendo al navegador acceso MIDI, incluido SysEx…',
+'bank {bank} has IR off':'el banco {bank} tiene IR apagado',
+'bank {bank} plays factory cabinet {cabinet}':'el banco {bank} usa el gabinete de fábrica {cabinet}',
+'bank?':'¿banco?',
+'block empty':'bloque vacío',
+'block off':'bloque apagado',
+'cabinet 8 · no sector':'gabinete 8 · sin sector',
+'cabinet not read':'gabinete sin leer',
+'cabinet {name}':'gabinete {name}',
+'cabinet.js is not loaded, so no file can be judged':'cabinet.js no está cargado, así que no se puede juzgar ningún archivo',
+'carried':'incluido',
+'declared? press the badge':'¿declarado? pulsa la etiqueta',
+'deleted "{name}" from this browser\'s bank':'borrado "{name}" del banco de este navegador',
+'diagnose: {asked} pair(s) asked, {answered} answered with a name':'diagnóstico: {asked} par(es) preguntados, {answered} respondieron con un nombre',
+'download the 4096-byte cabinet this configuration carries':'descargar el gabinete de 4096 bytes que lleva esta configuración',
+'editing':'editando',
+'exported "{name}" as {file}':'exportado "{name}" como {file}',
+'exported "{name}" as {file} — the pedal was not written':'exportado "{name}" como {file} — no se escribió en el pedal',
+'exported the cabinet of "{name}" as {file}':'exportado el gabinete de "{name}" como {file}',
+'exported {count} as {file}':'exportadas {count} como {file}',
+'factory reset':'restablecer de fábrica',
+'from {slot}':'de {slot}',
+'generated {name} ({hex}) · nothing was sent to the pedal':'generado {name} ({hex}) · no se envió nada al pedal',
+'import: {line}':'importación: {line}',
+'importing the cabinet':'importando el gabinete',
+'kept in this browser · nothing leaves this machine':'guardado en este navegador · nada sale de esta máquina',
+'live':'en vivo',
+'loading "{name}"':'cargando "{name}"',
+'moving MIC DIST':'moviendo MIC DIST',
+'no answer':'sin respuesta',
+'no cabinet in the slot':'no hay gabinete en la ranura',
+'no input':'sin entrada',
+'no output':'sin salida',
+'no pedal':'sin pedal',
+'no pedal connected':'no hay pedal conectado',
+'no pedal connected: a load writes thirteen live values and cannot be done offline':'no hay pedal conectado: una carga escribe trece valores en vivo y no puede hacerse sin conexión',
+'no pedal values':'sin valores del pedal',
+'no tone matches these filters · clear the search or a filter':'ningún tono coincide con estos filtros · borra la búsqueda o un filtro',
+'nothing the tone needs is missing':'no falta nada de lo que el tono necesita',
+'on SAVE':'al SAVE',
+'preset {slot} selects cabinet 8 (your slot) and the page has not read it: press READ CABINET, then SAVE. Nothing was stored':'el preset {slot} selecciona el gabinete 8 (tu ranura) y la página no lo ha leído: pulsa LEER GABINETE y luego SAVE. No se guardó nada',
+'press GENERATE first, or pick a tone from the library: there is no preset to work with':'pulsa GENERAR primero, o elige un tono de la biblioteca: no hay ningún preset con el que trabajar',
+'puts back the sector that was read before the last cabinet write':'devuelve el sector que se leyó antes de la última escritura del gabinete',
+'read from the slot':'leído de la ranura',
+'read the pedal\'s cabinet slot (0x00070000, 37 chunks of 113 bytes)':'leída la ranura de gabinete del pedal (0x00070000, 37 bloques de 113 bytes)',
+'read the pedal\'s cabinet slot: {line}':'leída la ranura de gabinete del pedal: {line}',
+'read the presets first: SAVE stores the sixteen bytes the pedal answered':'lee los presets primero: SAVE guarda los dieciséis bytes que respondió el pedal',
+'read the three presets: memory 0x05, address 0, 48 bytes':'leídos los tres presets: memoria 0x05, dirección 0, 48 bytes',
+'reading A, B and C from the pedal':'leyendo A, B y C del pedal',
+'reading the cabinet':'leyendo el gabinete',
+'reading the pedal…':'leyendo el pedal…',
+'reading the presets':'leyendo los presets',
+'restored: {line}':'restaurado: {line}',
+'restoring the cabinet':'restaurando el gabinete',
+'saved':'guardado',
+'saving':'guardando',
+'slot 8 · 0x00070000 · the only writable one':'ranura 8 · 0x00070000 · la única escribible',
+'stored "{name}" from {slot}, settings only — the pedal was not written':'guardado "{name}" desde {slot}, solo ajustes — no se escribió en el pedal',
+'stored "{name}" from {slot}, with the cabinet the page read from the slot — the pedal was not written':'guardado "{name}" desde {slot}, con el gabinete que la página leyó de la ranura — no se escribió en el pedal',
+'stored "{name}" in this browser\'s bank — the pedal was not written':'guardado "{name}" en el banco de este navegador — no se escribió en el pedal',
+'switch {stage}':'interruptor {stage}',
+'taken from the amp and cabinet':'tomado del amplificador y del gabinete',
+'tap to switch {param} off and back on':'toca para apagar y volver a encender {param}',
+'the actions are not loaded: ui-tonegen.js is missing':'las acciones no están cargadas: falta ui-tonegen.js',
+'the bank cannot be stored in this browser: {reason}':'el banco no puede guardarse en este navegador: {reason}',
+'the bank could not be written: {reason}':'no se pudo escribir el banco: {reason}',
+'the bank is empty: there is nothing to export':'el banco está vacío: no hay nada que exportar',
+'the cabinet slot has not been read':'la ranura de gabinete no se ha leído',
+'the configuration was not stored: {reason}':'la configuración no se guardó: {reason}',
+'the entry was not deleted: {reason}':'la entrada no se borró: {reason}',
+'the file could not be read: {reason}. Nothing was imported':'no se pudo leer el archivo: {reason}. No se importó nada',
+'the file could not be written: {reason}':'no se pudo escribir el archivo: {reason}',
+'the file was read but this browser will not keep a bank: {reason}':'el archivo se leyó, pero este navegador no guardará un banco: {reason}',
+'the file was refused and nothing was imported: {reason}':'el archivo fue rechazado y no se importó nada: {reason}',
+'the page holds this cabinet ({origin}), MIC DIST {distance}%{silence}':'la página tiene este gabinete ({origin}), MIC DIST {distance}%{silence}',
+'the pair was chosen by hand and has not been verified: press CONNECT to ask it its name':'el par se eligió a mano y no se ha verificado: pulsa CONNECT para preguntarle su nombre',
+'the pedal answered as "{name}" on {output} → {input}':'el pedal respondió como "{name}" en {output} → {input}',
+'the pedal is loading its cabinet':'el pedal está cargando su gabinete',
+'the pedal plays this':'el pedal suena esto',
+'the pedal plays {playing}, so a load into {target} would send thirteen live values it never plays. Tap the badge to declare {target}, or load into {playing}. Nothing was sent':'el pedal suena {playing}, así que una carga en {target} enviaría trece valores en vivo que nunca suena. Toca la etiqueta para declarar {target}, o carga en {playing}. No se envió nada',
+'the pedal sounds {bank}':'el pedal suena {bank}',
+'the preset could not be generated: {reason}':'no se pudo generar el preset: {reason}',
+'the preset was not stored: {reason}':'el preset no se guardó: {reason}',
+'the presets could not be read':'no se pudieron leer los presets',
+'the researched tone library is not loaded: ui-library.js and tone-library.js are missing':'la biblioteca de tonos investigados no está cargada: faltan ui-library.js y tone-library.js',
+'the slot answered, and holds no cabinet the page can send back':'la ranura respondió y no tiene ningún gabinete que la página pueda devolver',
+'the slot holds a cabinet':'la ranura tiene un gabinete',
+'the three presets were written and read back identical':'los tres presets se escribieron y se releyeron idénticos',
+'this preset cannot be used: {problems}':'este preset no puede usarse: {problems}',
+'this preset cannot be used: {reason}':'este preset no puede usarse: {reason}',
+'this tone cannot be used: {problems}':'este tono no puede usarse: {problems}',
+'transport.js is not loaded: the page is showing what it would do, and cannot talk to a pedal.':'transport.js no está cargado: la página muestra lo que haría y no puede hablar con ningún pedal.',
+'transport.js is not loaded: there is no Web MIDI link on this page':'transport.js no está cargado: no hay enlace Web MIDI en esta página',
+'transport.js is not loaded: there is nothing to probe':'transport.js no está cargado: no hay nada que sondear',
+'type an exact value':'escribe un valor exacto',
+'undo':'deshacer',
+'unsaved changes':'cambios sin guardar',
+'value':'valor',
+'which bank the pedal is playing':'qué banco está sonando el pedal',
+'writing {param}':'escribiendo {param}',
+'written and read back':'escrito y releído',
+'wrote the cabinet and read it back: {line}':'escrito el gabinete y releído: {line}',
+'{bank} · {mode}':'{bank} · {mode}',
+'{count} configuration':'{count} configuración',
+'{count} configurations':'{count} configuraciones',
+'{hex} · 16 bytes, 13 in use':'{hex} · 16 bytes, 13 en uso',
+'{hex} · 16 bytes, 13 in use · the patch the master package ships for this tone':'{hex} · 16 bytes, 13 en uso · el patch que el paquete maestro trae para este tono',
+'{line} The live window cannot be read back, so the cabinet half is what was verified.':'{line} La ventana en vivo no se puede releer, así que la mitad del gabinete es lo verificado.',
+'{param} = {value} ({name}) sent to live memory':'{param} = {value} ({name}) enviado a la memoria en vivo',
+'{shown} of {total} tones{match}{cap}':'{shown} de {total} tonos{match}{cap}',
+'{stored} of {total} stored, nothing rejected':'{stored} de {total} guardadas, nada rechazado',
+'{stored} of {total} stored; rejected: {rejected}':'{stored} de {total} guardadas; rechazadas: {rejected}',
+'{style} · {archetype} · approximation {quality}/5{confidence}':'{style} · {archetype} · aproximación {quality}/5{confidence}',
+'{verb} {edited} while the pedal sounds {sounding}: nothing was sent live':'{verb} {edited} mientras el pedal suena {sounding}: no se envió nada en vivo',
+'· high confidence':'· confianza alta',
+'· one match':'· una coincidencia',
+'· showing the first {max}':'· mostrando los primeros {max}',
+'— 100% silences the cabinet':'— el 100% silencia el gabinete'
+};
+var pt={
+'RigShade WebApp':'RigShade WebApp',
+'RigShade WebApp — the Cube Baby\'s three presets, its chain and its whole editor, from a desktop browser over USB-MIDI.':'RigShade WebApp — os três presets do Cube Baby, sua cadeia e todo o seu editor, a partir do navegador de um computador via USB-MIDI.',
+'Link':'Ligação',
+'CONNECT':'CONECTAR',
+'DIAGNOSE':'DIAGNOSTICAR',
+'asks every candidate port pair its name and prints one line per pair':'pergunta o nome a cada par de portas candidato e imprime uma linha por par',
+'READ PRESETS':'LER PRESETS',
+'Output':'Saída',
+'Input':'Entrada',
+'Pedal':'Pedal',
+'Wire':'Registro',
+'CLEAR':'LIMPAR',
+'OK':'OK',
+'Which bank is playing?':'Qual banco está tocando?',
+'Tap the bank the pedal\'s own A/B/C switch is on. That bank is heard live; the others reach the pedal when you press SAVE.':'Toque o banco em que está a chave A/B/C do próprio pedal. Esse banco é ouvido ao vivo; os outros chegam ao pedal quando você pressiona SAVE.',
+'Cancel':'Cancelar',
+'Testers':'Testadores',
+'Android app · closed testing':'App Android · teste fechado',
+'We are running a small closed test of the Android app — the same three presets, the same chain and the same editor, on a phone, over USB-C — to see how it actually feels to use straight from Android: the taps, the swipe, the control that ends up one thumb too far. Your own experience is the part we cannot get any other way, so we would love to count you in. Leave the address where the promo code for the build should go, and we will write to you.':'Estamos fazendo um teste fechado pequeno do app Android — os mesmos três presets, a mesma cadeia e o mesmo editor, em um celular, por USB-C — para ver como é usar direto do Android: os toques, o deslize, o controle que acaba um dedo longe demais. A sua própria experiência é a parte que não conseguimos de outra forma, então adoraríamos contar com você. Deixe o endereço para onde o código promocional da versão deve ir, e escreveremos para você.',
+'Joining now also means keeping it: whoever picks the app up during the promotional stage uses it free of charge from then on — no subscription, no payment later.':'Entrar agora também significa ficar com ele: quem pegar o app durante a etapa promocional usa de graça a partir daí — sem assinatura, sem pagamento depois.',
+'Email for the promo code':'E-mail para o código promocional',
+'you@gmail.com':'you@gmail.com',
+'Phone model':'Modelo do celular',
+'Pixel 7':'Pixel 7',
+'Android version':'Versão do Android',
+'15':'15',
+'Anything else':'Algo mais',
+'(optional)':'(opcional)',
+'The pedal you have, your amp, and what you want to test':'O pedal que você tem, seu amplificador e o que quer testar',
+'You send it, we receive it.':'Você envia, nós recebemos.',
+'The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the code sent to.':'O botão abre o seu próprio aplicativo de e-mail com a mensagem já escrita para a caixa da RigShade — nada sai desta página até você apertar enviar lá, e a mensagem não é publicada em lugar nenhum. Use o endereço para onde o código deve ir.',
+'Request a seat':'Pedir uma vaga',
+'The tester intake is being set up.':'A recepção de testadores está sendo preparada.',
+'GET IT ON':'BAIXE NO',
+'Google Play':'Google Play',
+'Visit the RigShade site':'Visitar o site da RigShade',
+'© RigShade. All rights reserved.':'© RigShade. Todos os direitos reservados.',
+'Terms of use':'Termos de uso',
+'Privacy':'Privacidade',
+'RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE; the pedal\'s name is here only to say what this page talks to.':'A RigShade é um projeto independente. Não é afiliada à M-VAVE nem à CUVAVE, nem tem o endosso ou o patrocínio delas; o nome do pedal aparece apenas para dizer com o que esta página conversa.',
+'Language':'Idioma',
+'RigShade — terms and privacy':'RigShade — termos e privacidade',
+'RigShade WebApp: terms of use and what this page does with your data (nothing leaves the browser).':'RigShade WebApp: termos de uso e o que esta página faz com os seus dados (nada sai do navegador).',
+'Last updated when this page was published.':'Última atualização: quando esta página foi publicada.',
+'Back to the control page':'Voltar para a página de controle',
+'RigShade Control is a free, unofficial tool for editing the three presets of a Cube Baby multi-effects pedal from a desktop browser. It is provided as it is, without warranty of any kind. It writes to the pedal flash; the page checks what it writes by reading it back, but the risk of using it stays with you, and a preset you care about should be exported first.':'RigShade Control é uma ferramenta gratuita e não oficial para editar os três presets de um pedal multiefeitos Cube Baby a partir do navegador de um computador. É fornecida como está, sem garantia de qualquer tipo. Ela grava na memória do pedal; a página confere o que gravou lendo de volta, mas o risco de usar continua sendo seu, e um preset de que você gosta deve ser exportado antes.',
+'RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE. The pedal\'s name is used only to say what this page talks to.':'A RigShade é um projeto independente. Não é afiliada à M-VAVE nem à CUVAVE, nem tem o endosso ou o patrocínio delas. O nome do pedal é usado apenas para dizer com o que esta página conversa.',
+'© RigShade. All rights reserved. The name RigShade, this page\'s text and its design are not licensed for reuse. No part of this page may be republished as another product.':'© RigShade. Todos os direitos reservados. O nome RigShade, o texto desta página e o seu design não são licenciados para reutilização. Nenhuma parte desta página pode ser republicada como outro produto.',
+'Licence':'Licença',
+'RigShade WebApp is proprietary software: © RigShade. All rights reserved. You may open the published page in a browser and evaluate it, for your own personal and non-commercial use.':'RigShade WebApp é software proprietário: © RigShade. Todos os direitos reservados. Você pode abrir a página publicada em um navegador e avaliá-la, para o seu uso pessoal e não comercial.',
+'You may not copy, redistribute or republish the page or any of its files, and you may not reuse them as part of another product or service.':'Você não pode copiar, redistribuir nem republicar a página nem qualquer um dos seus arquivos, nem reutilizá-los como parte de outro produto ou serviço.',
+'The full terms — the warranty disclaimer and the third-party names — are in the':'Os termos completos — a isenção de garantia e os nomes de terceiros — estão no arquivo',
+'file published beside this page.':'publicado ao lado desta página.',
+'This page runs in your browser. It has no account, no analytics, no cookie and no server of its own: every byte it needs is the page itself. The browser refuses any outbound request from it, so the only network traffic is the download of the page.':'Esta página roda no seu navegador. Não tem conta, nem analytics, nem cookies, nem servidor próprio: cada byte de que precisa é a própria página. O navegador recusa qualquer pedido de saída a partir dela, então o único tráfego de rede é o download da página.',
+'Your presets and the bank you build stay on your computer, in this browser\'s':'Seus presets e o banco que você monta ficam no seu computador, no',
+'and nowhere else. Clearing site data deletes them.':'deste navegador e em nenhum outro lugar. Apagar os dados do site os exclui.',
+'The page asks the browser for permission to use Web MIDI, which is what reaches the pedal over USB. That permission is the browser\'s, not ours. The only device the page talks to is the one you pick in the Link panel.':'A página pede permissão ao navegador para usar Web MIDI, que é o que chega ao pedal por USB. Essa permissão é do navegador, não nossa. O único dispositivo com que a página conversa é o que você escolhe no painel de ligação.',
+'The tester form at the end of the control page is the one thing here that goes past that: it writes a message to the project\'s mailbox (':'O formulário de testadores no fim da página de controle é a única coisa que vai além disso: ele escreve uma mensagem para a caixa do projeto (',
+') and hands it to your own email app, so nothing is sent until you press send there. This page itself sends nothing and stores nothing. Once you send it, the message is kept in that inbox under our own terms — and in your own sent mail, under your provider\'s.':') e o entrega ao seu próprio aplicativo de e-mail, então nada é enviado até você apertar enviar lá. Esta página não envia nem guarda nada. Depois de enviado, a mensagem fica nessa caixa sob os nossos termos — e no seu próprio e-mail enviado, sob os termos do seu provedor.',
+'RigShade beta tester request — {device}':'Pedido de testador da RigShade — {device}',
+'Beta tester request':'Pedido de testador',
+'Email for the promo code: {value}':'E-mail para o código promocional: {value}',
+'Phone: {value}':'Celular: {value}',
+'Android: {value}':'Android: {value}',
+'Anything else:':'Algo mais:',
+'(not given)':'(não informado)',
+'(nothing added)':'(nada adicionado)',
+'Sent from the RigShade control page.':'Enviado da página de controle da RigShade.',
+'Opening your email app — the message goes to {mailbox}.':'Abrindo o seu aplicativo de e-mail — a mensagem vai para {mailbox}.',
+'"{name}" carries no cabinet':'"{name}" não traz gabinete',
+'"{name}" could not be written: {reason}':'não foi possível escrever "{name}": {reason}',
+'"{name}" is applied to the preset you choose. A load writes live memory only: SAVE is what makes it survive a power cycle.':'"{name}" é aplicado ao preset que você escolher. Uma carga grava só na memória ao vivo: o que o faz sobreviver a desligar é SAVE.',
+'(empty name)':'(sem nome)',
+'(no name)':'(sem nome)',
+'(unnamed)':'(sem nome)',
+'37 chunks of 113 bytes, 40 ms apart — the read the pedal was measured to tolerate':'37 blocos de 113 bytes, com 40 ms entre eles — a leitura que o pedal tolerou na medição',
+'ANSWER':'RESPONDE',
+'ARCHETYPE':'ARQUÉTIPO',
+'ARTIST':'ARTISTA',
+'BACK':'VOLTAR',
+'BANK':'BANCO',
+'Bank {bank} has no cabinet':'O banco {bank} não tem gabinete',
+'Bank {bank} plays factory cabinet {cabinet}. MIC DIST only moves your imported cabinet — press IMPORT IR first.':'O banco {bank} usa o gabinete de fábrica {cabinet}. MIC DIST só move o seu gabinete importado — aperte IMPORTAR IR primeiro.',
+'Bank {bank} selects cabinet 8 and the pedal\'s slot is empty. Press IMPORT IR to put a cabinet there.':'O banco {bank} seleciona o gabinete 8 e a vaga do pedal está vazia. Aperte IMPORTAR IR para colocar um gabinete aí.',
+'CABINET':'GABINETE',
+'CANCEL':'CANCELAR',
+'COLLECTION':'COLEÇÃO',
+'Cabinet not read':'Gabinete não lido',
+'Choose a configuration from the list above, then load it into {slot}.':'Escolha uma configuração da lista acima e carregue em {slot}.',
+'Choose a tone above: its values, its evidence and what the pedal cannot do are shown here.':'Escolha um tom acima: os valores, as evidências e o que o pedal não faz aparecem aqui.',
+'Configuration':'Configuração',
+'DECADE':'DÉCADA',
+'DECADE / GENRE':'DÉCADA / GÊNERO',
+'DELETE':'APAGAR',
+'DOWNLOAD JSON':'BAIXAR JSON',
+'EDIT':'EDITAR',
+'EDIT {slot}':'EDITAR {slot}',
+'EDITING':'EDITANDO',
+'EVIDENCE':'EVIDÊNCIA',
+'EXPORT':'EXPORTAR',
+'EXPORT ALL':'EXPORTAR TUDO',
+'Edit held for bank {bank}':'Edição retida: banco {bank}',
+'Factory reset':'Restaurar de fábrica',
+'GENERATE':'GERAR',
+'GENRE':'GÊNERO',
+'GUITAR / PICKUP':'GUITARRA / CAPTADOR',
+'IMPORT':'IMPORTAR',
+'IMPORT WAV':'IMPORTAR WAV',
+'IR 8 · user':'IR 8 · usuário',
+'Import refused, nothing was sent to the pedal: {reason}':'Importação recusada, nada foi enviado ao pedal: {reason}',
+'LOAD':'CARREGAR',
+'LOAD INTO':'CARREGAR EM',
+'LOAD INTO THE CHAIN':'CARREGAR NA CADEIA',
+'Live edits are paused — {reason}':'As edições ao vivo estão em pausa — {reason}',
+'Load into':'Carregar em',
+'MIC DIST is for the sounding bank':'MIC DIST é do banco que toca',
+'MIC DIST needs your cabinet':'MIC DIST precisa do seu gabinete',
+'MISSING EFFECTS':'EFEITOS QUE FALTAM',
+'MODULATION':'MODULAÇÃO',
+'NOTES':'NOTAS',
+'Name':'Nome',
+'No cabinet to move':'Nenhum gabinete para mover',
+'No pedal values yet: press READ PRESETS, or CONNECT to read A, B and C.':'Ainda não há valores do pedal: aperte READ PRESETS, ou CONNECT para ler A, B e C.',
+'Nothing saved yet. SAVE keeps the configuration the pedal is holding now.':'Nada salvo ainda. SAVE guarda a configuração que o pedal tem agora.',
+'ORIGINAL RIG':'EQUIPAMENTO ORIGINAL',
+'PART':'PARTE',
+'Pedal not connected':'Pedal não conectado',
+'Plug the pedal in over USB, press CONNECT, then try again.':'Conecte o pedal por USB, aperte CONNECT e tente de novo.',
+'Plug the pedal in to edit live.':'Conecte o pedal para editar ao vivo.',
+'Press READ PRESETS so the page holds A, B and C, then try again.':'Aperte READ PRESETS para a página ter A, B e C, e tente de novo.',
+'Put the previous cabinet back?':'Colocar o gabinete anterior de volta?',
+'READ CABINET':'LER GABINETE',
+'RESEARCH':'PESQUISA',
+'RESET':'RESET',
+'RESET writes the documented initial values into all three memories, not the presets the pedal shipped with. The block the pedal holds now is read and kept first, so UNDO can put it back.':'RESET grava os valores iniciais documentados nas três memórias, não os presets com que o pedal saiu. O bloco que o pedal tem agora é lido e guardado antes, para o UNDO poder devolvê-lo.',
+'RESET writes the documented initial values into all three memories. The block the pedal holds now is kept, so UNDO can put it back.':'RESET grava os valores iniciais documentados nas três memórias. O bloco que o pedal tem agora é guardado, para o UNDO poder devolvê-lo.',
+'RESTORE':'RESTAURAR',
+'Read the pedal first':'Leia o pedal primeiro',
+'Read the pedal to save a configuration.':'Leia o pedal para salvar uma configuração.',
+'Ready · {name}':'Pronto · {name}',
+'SAVE':'SAVE',
+'SAVE {slot}':'SAVE {slot}',
+'SEARCH':'BUSCAR',
+'SILENT':'SILÊNCIO',
+'SOURCE':'FONTE',
+'STORE IN THE BANK':'GUARDAR NO BANCO',
+'STYLE':'ESTILO',
+'STYLE FAMILY':'FAMÍLIA DE ESTILO',
+'Save not confirmed':'Salvo sem confirmação',
+'Save preset {slot}':'Salvar o preset {slot}',
+'Saved':'Salvo',
+'Stored in this browser\'s localStorage · nothing leaves this machine. {tail}':'Guardado no localStorage deste navegador · nada sai desta máquina. {tail}',
+'TONES':'TONS',
+'Tap the bank badge and say which bank the pedal is playing, then load: nothing was sent':'Toque no selo do banco e diga qual banco o pedal está tocando, e então carregue: nada foi enviado',
+'Tap to say which bank the pedal is playing.':'Toque para dizer qual banco o pedal está tocando.',
+'The name is what you will read in this list. The configuration stays on this machine.':'O nome é o que você vai ler nesta lista. A configuração fica nesta máquina.',
+'The page could not read the pedal\'s cabinet. Press READ CABINET, then try again.':'A página não conseguiu ler o gabinete do pedal. Aperte LER GABINETE e tente de novo.',
+'The page kept the {bytes} bytes that were in the slot before the last cabinet write. Writing them is the same erase-then-write, and the result is read back and compared.':'A página guardou os {bytes} bytes que estavam na vaga antes da última gravação do gabinete. Gravá-los é o mesmo apagar-e-gravar, e o resultado é lido de volta e comparado.',
+'The pedal did not read back the values. Press SAVE again; if a cabinet was involved, press RESTORE.':'O pedal não devolveu os valores. Aperte SAVE de novo; se havia um gabinete, aperte RESTAURAR.',
+'The pedal is playing {sounding}, so nothing was sent. Tap the bank badge and pick {target}.':'O pedal está tocando {sounding}, então nada foi enviado. Toque no selo do banco e escolha {target}.',
+'The pedal is playing {sounding}. Tap the bank badge and pick {target}, then move MIC DIST.':'O pedal está tocando {sounding}. Toque no selo do banco e escolha {target}, e então mova MIC DIST.',
+'The pedal plays {bank}, so SAVE writes {target} to it.':'O pedal toca {bank}, então SAVE grava {target} nele.',
+'The pedal\'s user cabinet slot is cleared as well: the cabinet imported into it (IR 8) is erased and the slot is left free for a new import. RESTORE puts that cabinet back.':'A vaga de gabinete do usuário também é limpa: o gabinete importado nela (IR 8) é apagado e a vaga fica livre para uma nova importação. RESTAURAR devolve esse gabinete.',
+'This browser will not keep a bank for this page: {reason}. Imports and exports still work.':'Este navegador não vai guardar um banco para esta página: {reason}. Importações e exportações continuam funcionando.',
+'This browser will not keep a bank for this page: {reason}. Nothing was lost — nothing was stored.':'Este navegador não vai guardar um banco para esta página: {reason}. Nada foi perdido — nada foi guardado.',
+'This screen is not on this page: {screen} is a module of its own (ui-{screen}.js), which this build does not ship.':'Esta tela não está nesta página: {screen} é um módulo à parte (ui-{screen}.js), que esta versão não inclui.',
+'This tone cannot reach the pedal: {problems}':'Este tom não pode chegar ao pedal: {problems}',
+'Turn IR on for bank {bank}, or import a cabinet, then move MIC DIST.':'Ligue o IR no banco {bank}, ou importe um gabinete, e então mova MIC DIST.',
+'Two ways to a preset: pick one of the researched tones of RigShade Master Package v1, or describe the sound and press GENERATE. Either way the sixteen bytes are shown before anything reaches the pedal.':'Dois caminhos até um preset: escolher um dos tons pesquisados do RigShade Master Package v1, ou descrever o som e apertar GERAR. De um jeito ou de outro os dezesseis bytes aparecem antes de qualquer coisa chegar ao pedal.',
+'UNDO':'UNDO',
+'Unsaved changes':'Alterações não salvas',
+'WHY':'POR QUÊ',
+'WRITE':'GRAVAR',
+'Working…':'Trabalhando…',
+'Write this cabinet?':'Gravar este gabinete?',
+'a preset from a description · nothing is sent until you press LOAD':'um preset a partir de uma descrição · nada é enviado até você apertar CARREGAR',
+'amp {amp} · cabinet {cabinet} · a factory cabinet, never the user slot':'amplificador {amp} · gabinete {cabinet} · um gabinete de fábrica, nunca a vaga do usuário',
+'and {count} more':'e mais {count}',
+'another action is still finishing':'outra ação ainda está terminando',
+'artist, song, archetype, tag':'artista, música, arquétipo, tag',
+'asking the browser for MIDI access, including SysEx…':'pedindo ao navegador acesso MIDI, incluindo SysEx…',
+'bank {bank} has IR off':'o banco {bank} está com o IR desligado',
+'bank {bank} plays factory cabinet {cabinet}':'o banco {bank} usa o gabinete de fábrica {cabinet}',
+'bank?':'banco?',
+'block empty':'bloco vazio',
+'block off':'bloco desligado',
+'cabinet 8 · no sector':'gabinete 8 · sem setor',
+'cabinet not read':'gabinete não lido',
+'cabinet {name}':'gabinete {name}',
+'cabinet.js is not loaded, so no file can be judged':'cabinet.js não está carregado, então nenhum arquivo pode ser julgado',
+'carried':'incluído',
+'declared? press the badge':'declarado? aperte o selo',
+'deleted "{name}" from this browser\'s bank':'apagado "{name}" do banco deste navegador',
+'diagnose: {asked} pair(s) asked, {answered} answered with a name':'diagnóstico: {asked} par(es) perguntados, {answered} responderam com um nome',
+'download the 4096-byte cabinet this configuration carries':'baixar o gabinete de 4096 bytes que esta configuração traz',
+'editing':'editando',
+'exported "{name}" as {file}':'exportado "{name}" como {file}',
+'exported "{name}" as {file} — the pedal was not written':'exportado "{name}" como {file} — nada foi gravado no pedal',
+'exported the cabinet of "{name}" as {file}':'exportado o gabinete de "{name}" como {file}',
+'exported {count} as {file}':'exportadas {count} como {file}',
+'factory reset':'restaurar de fábrica',
+'from {slot}':'de {slot}',
+'generated {name} ({hex}) · nothing was sent to the pedal':'gerado {name} ({hex}) · nada foi enviado ao pedal',
+'import: {line}':'importação: {line}',
+'importing the cabinet':'importando o gabinete',
+'kept in this browser · nothing leaves this machine':'guardado neste navegador · nada sai desta máquina',
+'live':'ao vivo',
+'loading "{name}"':'carregando "{name}"',
+'moving MIC DIST':'movendo MIC DIST',
+'no answer':'sem resposta',
+'no cabinet in the slot':'nenhum gabinete na vaga',
+'no input':'sem entrada',
+'no output':'sem saída',
+'no pedal':'sem pedal',
+'no pedal connected':'nenhum pedal conectado',
+'no pedal connected: a load writes thirteen live values and cannot be done offline':'nenhum pedal conectado: uma carga grava treze valores ao vivo e não pode ser feita sem conexão',
+'no pedal values':'sem valores do pedal',
+'no tone matches these filters · clear the search or a filter':'nenhum tom corresponde a estes filtros · limpe a busca ou um filtro',
+'nothing the tone needs is missing':'não falta nada do que o tom precisa',
+'on SAVE':'no SAVE',
+'preset {slot} selects cabinet 8 (your slot) and the page has not read it: press READ CABINET, then SAVE. Nothing was stored':'o preset {slot} seleciona o gabinete 8 (a sua vaga) e a página não o leu: aperte LER GABINETE e depois SAVE. Nada foi guardado',
+'press GENERATE first, or pick a tone from the library: there is no preset to work with':'aperte GERAR primeiro, ou escolha um tom da biblioteca: não há preset com que trabalhar',
+'puts back the sector that was read before the last cabinet write':'devolve o setor que foi lido antes da última gravação do gabinete',
+'read from the slot':'lido da vaga',
+'read the pedal\'s cabinet slot (0x00070000, 37 chunks of 113 bytes)':'lida a vaga de gabinete do pedal (0x00070000, 37 blocos de 113 bytes)',
+'read the pedal\'s cabinet slot: {line}':'lida a vaga de gabinete do pedal: {line}',
+'read the presets first: SAVE stores the sixteen bytes the pedal answered':'leia os presets primeiro: SAVE guarda os dezesseis bytes que o pedal respondeu',
+'read the three presets: memory 0x05, address 0, 48 bytes':'lidos os três presets: memória 0x05, endereço 0, 48 bytes',
+'reading A, B and C from the pedal':'lendo A, B e C do pedal',
+'reading the cabinet':'lendo o gabinete',
+'reading the pedal…':'lendo o pedal…',
+'reading the presets':'lendo os presets',
+'restored: {line}':'restaurado: {line}',
+'restoring the cabinet':'restaurando o gabinete',
+'saved':'salvo',
+'saving':'salvando',
+'slot 8 · 0x00070000 · the only writable one':'vaga 8 · 0x00070000 · a única gravável',
+'stored "{name}" from {slot}, settings only — the pedal was not written':'guardado "{name}" de {slot}, só ajustes — nada foi gravado no pedal',
+'stored "{name}" from {slot}, with the cabinet the page read from the slot — the pedal was not written':'guardado "{name}" de {slot}, com o gabinete que a página leu da vaga — nada foi gravado no pedal',
+'stored "{name}" in this browser\'s bank — the pedal was not written':'guardado "{name}" no banco deste navegador — nada foi gravado no pedal',
+'switch {stage}':'interruptor {stage}',
+'taken from the amp and cabinet':'tirado do amplificador e do gabinete',
+'tap to switch {param} off and back on':'toque para desligar e religar {param}',
+'the actions are not loaded: ui-tonegen.js is missing':'as ações não estão carregadas: falta o ui-tonegen.js',
+'the bank cannot be stored in this browser: {reason}':'o banco não pode ser guardado neste navegador: {reason}',
+'the bank could not be written: {reason}':'não foi possível escrever o banco: {reason}',
+'the bank is empty: there is nothing to export':'o banco está vazio: não há nada para exportar',
+'the cabinet slot has not been read':'a vaga de gabinete não foi lida',
+'the configuration was not stored: {reason}':'a configuração não foi guardada: {reason}',
+'the entry was not deleted: {reason}':'a entrada não foi apagada: {reason}',
+'the file could not be read: {reason}. Nothing was imported':'não foi possível ler o arquivo: {reason}. Nada foi importado',
+'the file could not be written: {reason}':'não foi possível escrever o arquivo: {reason}',
+'the file was read but this browser will not keep a bank: {reason}':'o arquivo foi lido, mas este navegador não vai guardar um banco: {reason}',
+'the file was refused and nothing was imported: {reason}':'o arquivo foi recusado e nada foi importado: {reason}',
+'the page holds this cabinet ({origin}), MIC DIST {distance}%{silence}':'a página tem este gabinete ({origin}), MIC DIST {distance}%{silence}',
+'the pair was chosen by hand and has not been verified: press CONNECT to ask it its name':'o par foi escolhido à mão e não foi verificado: aperte CONNECT para perguntar o nome',
+'the pedal answered as "{name}" on {output} → {input}':'o pedal respondeu como "{name}" em {output} → {input}',
+'the pedal is loading its cabinet':'o pedal está carregando o gabinete',
+'the pedal plays this':'o pedal toca isto',
+'the pedal plays {playing}, so a load into {target} would send thirteen live values it never plays. Tap the badge to declare {target}, or load into {playing}. Nothing was sent':'o pedal toca {playing}, então uma carga em {target} enviaria treze valores ao vivo que ele nunca toca. Toque no selo para declarar {target}, ou carregue em {playing}. Nada foi enviado',
+'the pedal sounds {bank}':'o pedal toca {bank}',
+'the preset could not be generated: {reason}':'não foi possível gerar o preset: {reason}',
+'the preset was not stored: {reason}':'o preset não foi guardado: {reason}',
+'the presets could not be read':'não foi possível ler os presets',
+'the researched tone library is not loaded: ui-library.js and tone-library.js are missing':'a biblioteca de tons pesquisados não está carregada: faltam ui-library.js e tone-library.js',
+'the slot answered, and holds no cabinet the page can send back':'a vaga respondeu e não tem nenhum gabinete que a página possa devolver',
+'the slot holds a cabinet':'a vaga tem um gabinete',
+'the three presets were written and read back identical':'os três presets foram gravados e relidos idênticos',
+'this preset cannot be used: {problems}':'este preset não pode ser usado: {problems}',
+'this preset cannot be used: {reason}':'este preset não pode ser usado: {reason}',
+'this tone cannot be used: {problems}':'este tom não pode ser usado: {problems}',
+'transport.js is not loaded: the page is showing what it would do, and cannot talk to a pedal.':'transport.js não está carregado: a página mostra o que faria e não consegue falar com nenhum pedal.',
+'transport.js is not loaded: there is no Web MIDI link on this page':'transport.js não está carregado: não há ligação Web MIDI nesta página',
+'transport.js is not loaded: there is nothing to probe':'transport.js não está carregado: não há nada para sondar',
+'type an exact value':'digite um valor exato',
+'undo':'desfazer',
+'unsaved changes':'alterações não salvas',
+'value':'valor',
+'which bank the pedal is playing':'qual banco o pedal está tocando',
+'writing {param}':'gravando {param}',
+'written and read back':'gravado e lido de volta',
+'wrote the cabinet and read it back: {line}':'gabinete gravado e lido de volta: {line}',
+'{bank} · {mode}':'{bank} · {mode}',
+'{count} configuration':'{count} configuração',
+'{count} configurations':'{count} configurações',
+'{hex} · 16 bytes, 13 in use':'{hex} · 16 bytes, 13 em uso',
+'{hex} · 16 bytes, 13 in use · the patch the master package ships for this tone':'{hex} · 16 bytes, 13 em uso · o patch que o pacote mestre traz para este tom',
+'{line} The live window cannot be read back, so the cabinet half is what was verified.':'{line} A janela ao vivo não pode ser lida de volta, então a metade do gabinete é o que foi verificado.',
+'{param} = {value} ({name}) sent to live memory':'{param} = {value} ({name}) enviado para a memória ao vivo',
+'{shown} of {total} tones{match}{cap}':'{shown} de {total} tons{match}{cap}',
+'{stored} of {total} stored, nothing rejected':'{stored} de {total} guardadas, nada recusado',
+'{stored} of {total} stored; rejected: {rejected}':'{stored} de {total} guardadas; recusadas: {rejected}',
+'{style} · {archetype} · approximation {quality}/5{confidence}':'{style} · {archetype} · aproximação {quality}/5{confidence}',
+'{verb} {edited} while the pedal sounds {sounding}: nothing was sent live':'{verb} {edited} enquanto o pedal toca {sounding}: nada foi enviado ao vivo',
+'· high confidence':'· confiança alta',
+'· one match':'· uma correspondência',
+'· showing the first {max}':'· mostrando os primeiros {max}',
+'— 100% silences the cabinet':'— 100% silencia o gabinete'
+};
+var TABLES={en:null,es:es,pt:pt};
+var current=DEFAULT_LOCALE;
+function normalise(code){
+var text=typeof code==='string'?code.trim().toLowerCase():'';
+var dash=text.indexOf('-');
+if(dash>0)text=text.slice(0,dash);
+var underscore=text.indexOf('_');
+if(underscore>0)text=text.slice(0,underscore);
+for(var i=0;i<LOCALES.length;i++){
+if(LOCALES[i]===text)return text;
+}
+return'';
+}
+function decode(text){
+var raw=text===undefined||text===null?'':String(text);
+try{
+return decodeURIComponent(raw.replace(/\+/g,' '));
+}catch(error){
+return raw;
+}
+}
+function queryLocale(search){
+var text=typeof search==='string'?search:'';
+if(text.charAt(0)==='?')text=text.slice(1);
+if(!text)return'';
+var pairs=text.split('&');
+for(var i=0;i<pairs.length;i++){
+var pair=pairs[i].split('=');
+if(decode(pair[0])!=='lang')continue;
+var value=normalise(decode(pair.slice(1).join('=')));
+if(value)return value;
+}
+return'';
+}
+function resolveLocale(search,stored,languages){
+var asked=queryLocale(search);
+if(asked)return asked;
+var remembered=normalise(stored);
+if(remembered)return remembered;
+var list=languages||[];
+for(var i=0;i<list.length;i++){
+var found=normalise(list[i]);
+if(found)return found;
+}
+return DEFAULT_LOCALE;
+}
+function hasEntry(key){
+var table=TABLES[current];
+return!!table&&Object.prototype.hasOwnProperty.call(table,key);
+}
+function t(key,vars){
+var text=key===undefined||key===null?'':String(key);
+var table=TABLES[current];
+if(table&&Object.prototype.hasOwnProperty.call(table,text))text=String(table[text]);
+if(!vars)return text;
+return text.replace(/\{(\w+)\}/g,function(match,name){
+return Object.prototype.hasOwnProperty.call(vars,name)?String(vars[name]):match;
+});
+}
+function publishMissing(missing){
+var root=document.documentElement;
+var keys=[];
+for(var key in missing){
+if(Object.prototype.hasOwnProperty.call(missing,key))keys.push(key);
+}
+if(keys.length===0){
+root.removeAttribute(MISSING_ATTRIBUTE);
+return;
+}
+root.setAttribute(MISSING_ATTRIBUTE,keys.join('|'));
+}
+function apply(root){
+var scope=root||document;
+var nodes=scope.querySelectorAll('[data-i18n]');
+var missing={};
+for(var i=0;i<nodes.length;i++){
+var node=nodes[i];
+var key=node.getAttribute('data-i18n');
+if(!key)continue;
+if(current!==DEFAULT_LOCALE&&!hasEntry(key))missing[key]=true;
+var text=t(key);
+var attribute=node.getAttribute('data-i18n-attr');
+if(attribute)node.setAttribute(attribute,text);
+else node.textContent=text;
+}
+publishMissing(missing);
+return nodes.length;
+}
+function pressButtons(){
+var buttons=document.querySelectorAll('[data-i18n-set]');
+for(var i=0;i<buttons.length;i++){
+var code=normalise(buttons[i].getAttribute('data-i18n-set'));
+buttons[i].setAttribute('aria-pressed',code===current?'true':'false');
+}
+}
+function keys(code){
+var table=TABLES[normalise(code)];
+var found=[];
+if(!table)return found;
+for(var key in table){
+if(Object.prototype.hasOwnProperty.call(table,key))found.push(key);
+}
+return found.sort();
+}
+function remember(code){
+try{
+window.localStorage.setItem(STORAGE_KEY,code);
+}catch(error){
+}
+}
+function storedLocale(){
+try{
+return normalise(window.localStorage.getItem(STORAGE_KEY));
+}catch(error){
+return'';
+}
+}
+function setLocale(code){
+var next=normalise(code);
+if(!next)return current;
+current=next;
+remember(next);
+document.documentElement.setAttribute('lang',next);
+apply(document);
+pressButtons();
+if(typeof window.CustomEvent==='function'){
+document.dispatchEvent(new window.CustomEvent(EVENT_NAME,{
+bubbles:true,
+detail:{locale:next}
+}));
+}
+return current;
+}
+function wire(){
+var buttons=document.querySelectorAll('[data-i18n-set]');
+for(var i=0;i<buttons.length;i++){
+buttons[i].addEventListener('click',function(event){
+setLocale(event.currentTarget.getAttribute('data-i18n-set'));
+});
+}
+}
+window.RigShadeI18n={
+LOCALES:LOCALES,
+t:t,
+apply:apply,
+setLocale:setLocale,
+resolveLocale:resolveLocale,
+keys:keys,
+get locale(){
+return current;
+}
+};
+(function start(){
+var navigator=window.navigator||{};
+var languages=navigator.languages&&navigator.languages.length
+?navigator.languages
+:[navigator.language||''];
+current=resolveLocale(window.location?window.location.search:'',storedLocale(),languages);
+document.documentElement.setAttribute('lang',current);
+remember(current);
+apply(document);
+wire();
+pressButtons();
+})();
+})();

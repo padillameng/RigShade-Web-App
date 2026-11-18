@@ -6,6 +6,14 @@ const UI=global.RigShadeUI;
 if(!L)throw new Error('ui-library.js needs tone-library.js');
 if(!P)throw new Error('ui-library.js needs protocol.js');
 if(!UI)throw new Error('ui-library.js needs app.js');
+function t(text,vars){
+const layer=global.RigShadeI18n;
+if(layer&&typeof layer.t==='function')return layer.t(text,vars);
+if(!vars)return text;
+return String(text).replace(/\{(\w+)\}/g,function(match,name){
+return Object.prototype.hasOwnProperty.call(vars,name)?String(vars[name]):match;
+});
+}
 function el(tag,className,text){
 const element=document.createElement(tag);
 if(className)element.className=className;
@@ -35,16 +43,23 @@ const entry=selectedEntry();
 if(entry===null)return null;
 return L.detail(entry);
 }
+function filterHeading(key){
+if(key==='styleFamily')return t('STYLE');
+if(key==='decade')return t('DECADE');
+if(key==='genre')return t('GENRE');
+if(key==='artist')return t('ARTIST');
+return t('COLLECTION');
+}
 function buildFilters(section,ctx){
 const facets=L.facets();
 const box=el('div','library-filters');
 box.setAttribute('data-library-filters','1');
 const search=el('label','library-search');
-search.appendChild(el('span','knob-label','SEARCH'));
+search.appendChild(el('span','knob-label',t('SEARCH')));
 const text=el('input');
 text.type='search';
 text.setAttribute('data-library-text','1');
-text.placeholder='artist, song, archetype, tag';
+text.placeholder=t('artist, song, archetype, tag');
 text.addEventListener('input',function(){
 query.text=text.value;
 repaint(ctx);
@@ -53,10 +68,10 @@ search.appendChild(text);
 box.appendChild(search);
 for(const filter of FILTERS){
 const label=el('label');
-label.appendChild(el('span','knob-label',filter.key==='styleFamily'?'STYLE':filter.key.toUpperCase()));
+label.appendChild(el('span','knob-label',filterHeading(filter.key)));
 const select=el('select');
 select.setAttribute(filter.attribute,'1');
-const any=el('option',null,filter.all);
+const any=el('option',null,t(filter.all));
 any.value='';
 select.appendChild(any);
 for(const value of facets[filter.facet]){
@@ -83,8 +98,12 @@ head.appendChild(el('span','library-item-decade',entry.decade));
 row.appendChild(head);
 row.appendChild(
 el('span','library-item-meta',
-entry.styleFamily+' · '+entry.archetype+' · approximation '+entry.approximationQuality+'/5'+
-(entry.researchConfidence==='High'?' · high confidence':''))
+t('{style} · {archetype} · approximation {quality}/5{confidence}',{
+style:entry.styleFamily,
+archetype:entry.archetype,
+quality:entry.approximationQuality,
+confidence:entry.researchConfidence==='High'?' '+t('· high confidence'):'',
+}))
 );
 row.addEventListener('click',function(){
 selectedId=entry.id;
@@ -109,7 +128,7 @@ const made=picked();
 const box=section.querySelector('[data-library-detail]');
 box.textContent='';
 if(made===null){
-box.appendChild(line('Choose a tone above: its values, its evidence and what the pedal cannot do are shown here.'));
+box.appendChild(line(t('Choose a tone above: its values, its evidence and what the pedal cannot do are shown here.')));
 return;
 }
 const entry=made.entry;
@@ -118,21 +137,21 @@ head.appendChild(el('h3',null,entry.artist+' — '+entry.song));
 head.appendChild(el('span','state',made.hex));
 box.appendChild(head);
 const facts=el('div','library-facts');
-fact(facts,'ARCHETYPE',entry.archetype);
-fact(facts,'PART',entry.part);
-fact(facts,'DECADE / GENRE',entry.decade+' · '+entry.genre);
-fact(facts,'STYLE FAMILY',entry.styleFamily+' · '+(entry.coverage||[]).join(', '));
-fact(facts,'GUITAR / PICKUP',[entry.guitar,entry.pickup].filter(Boolean).join(' · '));
-fact(facts,'ORIGINAL RIG',entry.originalRig);
-fact(facts,'EVIDENCE',entry.evidence);
-fact(facts,'RESEARCH',entry.researchConfidence+' · approximation '+entry.approximationQuality+'/5');
-fact(facts,'MISSING EFFECTS',
-(entry.missingEffects||[]).length===0?'nothing the tone needs is missing':entry.missingEffects.join(', '));
-if(entry.notes)fact(facts,'NOTES',entry.notes);
+fact(facts,t('ARCHETYPE'),entry.archetype);
+fact(facts,t('PART'),entry.part);
+fact(facts,t('DECADE / GENRE'),entry.decade+' · '+entry.genre);
+fact(facts,t('STYLE FAMILY'),entry.styleFamily+' · '+(entry.coverage||[]).join(', '));
+fact(facts,t('GUITAR / PICKUP'),[entry.guitar,entry.pickup].filter(Boolean).join(' · '));
+fact(facts,t('ORIGINAL RIG'),entry.originalRig);
+fact(facts,t('EVIDENCE'),entry.evidence);
+fact(facts,t('RESEARCH'),entry.researchConfidence+' · approximation '+entry.approximationQuality+'/5');
+fact(facts,t('MISSING EFFECTS'),
+(entry.missingEffects||[]).length===0?t('nothing the tone needs is missing'):entry.missingEffects.join(', '));
+if(entry.notes)fact(facts,t('NOTES'),entry.notes);
 box.appendChild(facts);
 if(entry.source&&entry.source.url){
 const source=el('p','library-fact');
-source.appendChild(el('span','knob-label','SOURCE'));
+source.appendChild(el('span','knob-label',t('SOURCE')));
 const link=el('a',null,entry.source.label||entry.source.url);
 link.href=entry.source.url;
 link.rel='noreferrer noopener';
@@ -152,12 +171,12 @@ params.appendChild(knob);
 }
 box.appendChild(params);
 box.appendChild(el('p','pair',
-made.hex+' · 16 bytes, 13 in use · the patch the master package ships for this tone'));
+t('{hex} · 16 bytes, 13 in use · the patch the master package ships for this tone',{hex:made.hex})));
 const problem=el('p','notice error');
 problem.setAttribute('data-library-problem','1');
 problem.hidden=made.problems.length===0;
 problem.textContent=made.problems.length===0?'':
-'This tone cannot reach the pedal: '+made.problems.join('; ');
+t('This tone cannot reach the pedal: {problems}',{problems:made.problems.join('; ')});
 box.appendChild(problem);
 const warning=el('p','notice');
 warning.setAttribute('data-library-warning','1');
@@ -167,16 +186,16 @@ box.appendChild(warning);
 const actions=el('div','row');
 const apply=global.RigShadeToneGenUI&&global.RigShadeToneGenUI.apply;
 for(const action of[
-{key:'load',label:'LOAD INTO THE CHAIN',className:'primary'},
-{key:'store',label:'STORE IN THE BANK',className:''},
-{key:'download',label:'DOWNLOAD JSON',className:''},
+{key:'load',label:t('LOAD INTO THE CHAIN'),className:'primary'},
+{key:'store',label:t('STORE IN THE BANK'),className:''},
+{key:'download',label:t('DOWNLOAD JSON'),className:''},
 ]){
 const button=el('button',action.className,action.label);
 button.type='button';
 button.setAttribute('data-action','library-'+action.key);
 button.addEventListener('click',function(){
 if(typeof apply!=='function'){
-ctx.status('the actions are not loaded: ui-tonegen.js is missing','error');
+ctx.status(t('the actions are not loaded: ui-tonegen.js is missing'),'error');
 return;
 }
 apply(ctx,action.key,picked());
@@ -197,13 +216,16 @@ detailKey=null;
 selectedId=null;
 const section=el('section','library-screen');
 section.setAttribute('data-library-screen','1');
-section.appendChild(line(
-'The researched library from RigShade Master Package v1: '+L.count+
-' tones, from the '+L.facets().decades[0]+' to the '+
-L.facets().decades[L.facets().decades.length-1]+
-'. Every patch is an approximation built from the models this pedal has — not an official '+
-'emulation of the amp or cabinet it is named after.'
-));
+section.appendChild(line(t(
+'The researched library from RigShade Master Package v1: {count} tones, from the {first} to the '+
+'{last}. Every patch is an approximation built from the models this pedal has — not an official '+
+'emulation of the amp or cabinet it is named after.',
+{
+count:L.count,
+first:L.facets().decades[0],
+last:L.facets().decades[L.facets().decades.length-1],
+}
+)));
 buildFilters(section,ctx);
 const count=el('p','notice');
 count.setAttribute('data-library-count','1');
@@ -226,10 +248,13 @@ if(context!==null&&context!==undefined)screenCtx=context;
 const results=L.find(query);
 const count=section.querySelector('[data-library-count]');
 count.textContent=results.length===0
-?'no tone matches these filters · clear the search or a filter'
-:results.length+' of '+L.count+' tones'+
-(results.length===1?' · one match':'')+
-(results.length>MAX_ROWS?' · showing the first '+MAX_ROWS:'');
+?t('no tone matches these filters · clear the search or a filter')
+:t('{shown} of {total} tones{match}{cap}',{
+shown:results.length,
+total:L.count,
+match:results.length===1?' '+t('· one match'):'',
+cap:results.length>MAX_ROWS?' '+t('· showing the first {max}',{max:MAX_ROWS}):'',
+});
 const list=section.querySelector('[data-library-list]');
 const key=JSON.stringify(query);
 if(key!==listKey){
@@ -260,6 +285,11 @@ const ready=context?context.ready():false;
 button.disabled=busy||(action==='load'&&!ready)||(made!==null&&!made.loadable);
 }
 }
+document.addEventListener('rigshade:locale',function(){
+listKey=null;
+detailKey=null;
+if(host!==null)update(host,screenCtx);
+});
 global.RigShadeLibraryUI={
 mount:mount,
 update:update,

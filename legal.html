@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RigShade — terms and privacy</title>
-<meta name="description" content="RigShade WebApp: terms of use and what this page does with your data (nothing leaves the browser).">
+<title data-i18n="RigShade — terms and privacy">RigShade — terms and privacy</title>
+<meta name="description" content="RigShade WebApp: terms of use and what this page does with your data (nothing leaves the browser)." data-i18n="RigShade WebApp: terms of use and what this page does with your data (nothing leaves the browser)." data-i18n-attr="content">
 <meta name="theme-color" content="#121826">
 <link rel="icon" href="brand/rigshade-favicon.svg" type="image/svg+xml">
 <link rel="icon" href="brand/rigshade-favicon.png" type="image/png" sizes="512x512">
@@ -15,7 +15,9 @@
   :root {
     --carbon: #121826;
     --mint: #27E5B1;
+    --violet: #7A5CFF;
     --mist: #F4F7FA;
+    --inset: #2F3542;
     --secondary: rgba(244, 247, 250, 0.68);
     --tertiary: rgba(244, 247, 250, 0.45);
     --hairline-faint: rgba(244, 247, 250, 0.12);
@@ -36,45 +38,67 @@
   a { color: var(--mint); text-underline-offset: 2px; }
   .fine { font-size: 12px; color: var(--tertiary); }
   code { font-size: 12.5px; color: var(--secondary); }
+
+  .lang-row { display: grid; gap: 6px; }
+  .lang-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--inset);
+    border: 1px solid var(--hairline-faint);
+    color: var(--secondary);
+    cursor: pointer;
+  }
+  .chip:hover { border-color: var(--mint); }
+  .chip[aria-pressed="true"] { background: var(--violet); border-color: var(--violet); color: var(--mist); }
 </style>
 </head>
 <body>
 <main>
   <header>
-    <h1>RigShade — terms and privacy</h1>
-    <p class="fine">Last updated when this page was published. <a href="index.html">Back to the control page</a>.</p>
+    <h1 data-i18n="RigShade — terms and privacy">RigShade — terms and privacy</h1>
+    <p class="fine"><span data-i18n="Last updated when this page was published.">Last updated when this page was published.</span> <a href="index.html" data-i18n="Back to the control page">Back to the control page</a>.</p>
   </header>
 
   <section id="terms">
-    <h2>Terms of use</h2>
-    <p>RigShade Control is a free, unofficial tool for editing the three presets of a Cube Baby
-      multi-effects pedal from a desktop browser. It is provided as it is, without warranty of any
-      kind. It writes to the pedal flash; the page checks what it writes by reading it back, but the
-      risk of using it stays with you, and a preset you care about should be exported first.</p>
-    <p>RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by
-      M-VAVE or CUVAVE. The pedal's name is used only to say what this page talks to.</p>
-    <p>© RigShade. All rights reserved. The name RigShade, this page's text and its design are not
-      licensed for reuse. No part of this page may be republished as another product.</p>
+    <h2 data-i18n="Terms of use">Terms of use</h2>
+    <p data-i18n="RigShade Control is a free, unofficial tool for editing the three presets of a Cube Baby multi-effects pedal from a desktop browser. It is provided as it is, without warranty of any kind. It writes to the pedal flash; the page checks what it writes by reading it back, but the risk of using it stays with you, and a preset you care about should be exported first.">RigShade Control is a free, unofficial tool for editing the three presets of a Cube Baby multi-effects pedal from a desktop browser. It is provided as it is, without warranty of any kind. It writes to the pedal flash; the page checks what it writes by reading it back, but the risk of using it stays with you, and a preset you care about should be exported first.</p>
+    <p data-i18n="RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE. The pedal's name is used only to say what this page talks to.">RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE. The pedal's name is used only to say what this page talks to.</p>
+    <p data-i18n="© RigShade. All rights reserved. The name RigShade, this page's text and its design are not licensed for reuse. No part of this page may be republished as another product.">© RigShade. All rights reserved. The name RigShade, this page's text and its design are not licensed for reuse. No part of this page may be republished as another product.</p>
+  </section>
+
+  <section id="license">
+    <h2 data-i18n="Licence">Licence</h2>
+    <p data-i18n="RigShade WebApp is proprietary software: © RigShade. All rights reserved. You may open the published page in a browser and evaluate it, for your own personal and non-commercial use.">RigShade WebApp is proprietary software: © RigShade. All rights reserved. You may open the published page in a browser and evaluate it, for your own personal and non-commercial use.</p>
+    <p data-i18n="You may not copy, redistribute or republish the page or any of its files, and you may not reuse them as part of another product or service.">You may not copy, redistribute or republish the page or any of its files, and you may not reuse them as part of another product or service.</p>
+    <p><span data-i18n="The full terms — the warranty disclaimer and the third-party names — are in the">The full terms — the warranty disclaimer and the third-party names — are in the</span>
+      <a href="LICENSE">LICENSE</a> <span data-i18n="file published beside this page.">file published beside this page.</span></p>
   </section>
 
   <section id="privacy">
-    <h2>Privacy</h2>
-    <p>This page runs in your browser. It has no account, no analytics, no cookie and no server of its
-      own: every byte it needs is the page itself. The browser refuses any outbound request from it,
-      so the only network traffic is the download of the page.</p>
-    <p>Your presets and the bank you build stay on your computer, in this browser's
-      <code>localStorage</code>, and nowhere else. Clearing site data deletes them.</p>
-    <p>The page asks the browser for permission to use Web MIDI, which is what reaches the pedal over
-      USB. That permission is the browser's, not ours. The only device the page talks to is the one
-      you pick in the Link panel.</p>
-    <p>The tester form at the end of the control page is the one thing here that goes past that: it
-      writes a message to the project's mailbox (<code>rigcanvaslab@gmail.com</code>) and hands it to
-      your own email app, so nothing is sent until you press send there. This page itself sends
-      nothing and stores nothing. Once you send it, the message is kept in that inbox under our own
-      terms — and in your own sent mail, under your provider's.</p>
+    <h2 data-i18n="Privacy">Privacy</h2>
+    <p data-i18n="This page runs in your browser. It has no account, no analytics, no cookie and no server of its own: every byte it needs is the page itself. The browser refuses any outbound request from it, so the only network traffic is the download of the page.">This page runs in your browser. It has no account, no analytics, no cookie and no server of its own: every byte it needs is the page itself. The browser refuses any outbound request from it, so the only network traffic is the download of the page.</p>
+    <p><span data-i18n="Your presets and the bank you build stay on your computer, in this browser's">Your presets and the bank you build stay on your computer, in this browser's</span>
+      <code>localStorage</code> <span data-i18n="and nowhere else. Clearing site data deletes them.">and nowhere else. Clearing site data deletes them.</span></p>
+    <p data-i18n="The page asks the browser for permission to use Web MIDI, which is what reaches the pedal over USB. That permission is the browser's, not ours. The only device the page talks to is the one you pick in the Link panel.">The page asks the browser for permission to use Web MIDI, which is what reaches the pedal over USB. That permission is the browser's, not ours. The only device the page talks to is the one you pick in the Link panel.</p>
+    <p><span data-i18n="The tester form at the end of the control page is the one thing here that goes past that: it writes a message to the project's mailbox (">The tester form at the end of the control page is the one thing here that goes past that: it writes a message to the project's mailbox (</span><code>rigcanvaslab@gmail.com</code><span data-i18n=") and hands it to your own email app, so nothing is sent until you press send there. This page itself sends nothing and stores nothing. Once you send it, the message is kept in that inbox under our own terms — and in your own sent mail, under your provider's.">) and hands it to your own email app, so nothing is sent until you press send there. This page itself sends nothing and stores nothing. Once you send it, the message is kept in that inbox under our own terms — and in your own sent mail, under your provider's.</span></p>
   </section>
 
-  <p class="fine">© RigShade. All rights reserved.</p>
+  <p class="fine"><span data-i18n="© RigShade. All rights reserved.">© RigShade. All rights reserved.</span></p>
+
+  <div class="lang-row">
+    <span class="fine" data-i18n="Language">Language</span>
+    <div class="lang-chips" role="group" aria-label="Language" data-i18n="Language" data-i18n-attr="aria-label">
+      <button class="chip" type="button" data-i18n-set="en" aria-pressed="true">EN</button>
+      <button class="chip" type="button" data-i18n-set="es" aria-pressed="false">ES</button>
+      <button class="chip" type="button" data-i18n-set="pt" aria-pressed="false">PT</button>
+    </div>
+  </div>
 </main>
+<script src="i18n.js"></script>
 </body>
 </html>

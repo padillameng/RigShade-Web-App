@@ -4,6 +4,14 @@ const P=global.RigShadeProtocol;
 const UI=global.RigShadeUI;
 if(!P)throw new Error('ui-bank.js needs protocol.js');
 if(!UI)throw new Error('ui-bank.js needs app.js');
+function t(text,vars){
+const layer=global.RigShadeI18n;
+if(layer&&typeof layer.t==='function')return layer.t(text,vars);
+if(!vars)return text;
+return String(text).replace(/\{(\w+)\}/g,function(match,name){
+return Object.prototype.hasOwnProperty.call(vars,name)?String(vars[name]):match;
+});
+}
 const IR=9;
 const USER_IR_INDEX=8;
 const USER_SLOT_VALUE=P.CabinetNames.length-1;
@@ -31,7 +39,7 @@ function valueText(code,value,irFileName){
 const p=param(code);
 if(P.Params.isOff(p,value))return'OFF';
 if(code===IR&&value===USER_SLOT_VALUE){
-return irFileName&&ascii(irFileName).trim()?ascii(irFileName):'IR 8 · user';
+return irFileName&&ascii(irFileName).trim()?ascii(irFileName):t('IR 8 · user');
 }
 return P.describe(code,value);
 }
@@ -45,13 +53,15 @@ valueText(IR,values[9],irFileName),
 ].join(' · ');
 }
 function entryNote(entry){
-const parts=['from '+slotName(entry.slot),dateText(entry.createdAt)];
-if(entry.ir.length>0)parts.push('cabinet '+(ascii(entry.irName).trim()||'carried'));
-else if(entry.usesIr)parts.push('cabinet 8 · no sector');
+const parts=[t('from {slot}',{slot:slotName(entry.slot)}),dateText(entry.createdAt)];
+if(entry.ir.length>0)parts.push(t('cabinet {name}',{name:ascii(entry.irName).trim()||t('carried')}));
+else if(entry.usesIr)parts.push(t('cabinet 8 · no sector'));
 return parts.join(' · ');
 }
 function many(count){
-return count+' '+(count===1?'configuration':'configurations');
+return count===1
+?t('{count} configuration',{count:count})
+:t('{count} configurations',{count:count});
 }
 let injectedStore=null;
 let storeMemo=null;
@@ -102,7 +112,7 @@ return entryFileName(entry).replace(/\.json$/,'')+'.bin';
 }
 function gateFile(buffer,distance){
 const cabinet=global.RigShadeCabinet;
-if(!cabinet)return{ok:false,reason:'cabinet.js is not loaded, so no file can be judged'};
+if(!cabinet)return{ok:false,reason:t('cabinet.js is not loaded, so no file can be judged')};
 try{
 const decoded=cabinet.decodeWav(buffer);
 const samples=cabinet.toIrRate(decoded);
@@ -127,25 +137,32 @@ bytes:sector.length,
 }catch(error){
 return{
 ok:false,
-reason:'Import refused, nothing was sent to the pedal: '+(error&&error.message?error.message:String(error)),
+reason:t('Import refused, nothing was sent to the pedal: {reason}',{
+reason:error&&error.message?error.message:String(error),
+}),
 };
 }
 }
 function uploadBody(gate){
-return(
+return t(
 'The pedal has one writable cabinet slot, shared by A, B and C, and writing it erases what is '+
-'there first. This file writes '+gate.bytes+' bytes: '+gate.samples.length+
-' samples at the pedal\'s 48 kHz, with MIC DIST '+gate.distance+'%. The page reads the slot '+
-'and keeps it before the erase, so RESTORE puts the cabinet that is there now back.'
+'there first. This file writes {bytes} bytes: {samples} samples at the pedal\'s 48 kHz, with '+
+'MIC DIST {distance}%. The page reads the slot and keeps it before the erase, so RESTORE puts '+
+'the cabinet that is there now back.',
+{bytes:gate.bytes,samples:gate.samples.length,distance:gate.distance}
 );
 }
 let painted={key:null};
+let mountedRoot=null;
+let mountedCtx=null;
 function mount(root,ctx){
 const section=el('section','bank-screen');
 section.setAttribute('data-bank-screen','1');
 const head=el('div','panel-head');
-head.appendChild(el('h3',null,'BANK'));
-const where=el('span','state','kept in this browser · nothing leaves this machine');
+const headTitle=el('h3',null,t('BANK'));
+headTitle.setAttribute('data-bank-title','1');
+head.appendChild(headTitle);
+const where=el('span','state',t('kept in this browser · nothing leaves this machine'));
 where.setAttribute('data-bank-where','1');
 head.appendChild(where);
 section.appendChild(head);
@@ -154,17 +171,17 @@ notice.setAttribute('data-bank-notice','1');
 section.appendChild(notice);
 const actions=el('div','row');
 actions.setAttribute('data-bank-actions','1');
-const save=el('button','primary','SAVE A');
+const save=el('button','primary',t('SAVE'));
 save.setAttribute('data-action','bank-save');
 save.addEventListener('click',function(){
 openName(ctx,section);
 });
-const exportAll=el('button',null,'EXPORT ALL');
+const exportAll=el('button',null,t('EXPORT ALL'));
 exportAll.setAttribute('data-action','bank-export-all');
 exportAll.addEventListener('click',function(){
 exportWholeBank(ctx);
 });
-const importButton=el('button',null,'IMPORT');
+const importButton=el('button',null,t('IMPORT'));
 importButton.setAttribute('data-action','bank-import');
 const importFile=el('input');
 importFile.type='file';
@@ -201,6 +218,8 @@ section.appendChild(buildNameDialog(ctx,section));
 section.appendChild(buildLoadDialog(ctx,section));
 section.appendChild(buildUploadDialog(ctx,section));
 root.appendChild(section);
+mountedRoot=root;
+mountedCtx=ctx;
 painted={key:null};
 update(root,ctx);
 }
@@ -220,11 +239,11 @@ const note=el('span','block-note');
 note.setAttribute('data-preset-note',slotName(index));
 note.textContent=
 confirmed&&index===sounding
-?'the pedal plays this'
+?t('the pedal plays this')
 :!confirmed&&index===sounding
-?'declared? press the badge'
+?t('declared? press the badge')
 :index===ctx.state.activePreset
-?'editing'
+?t('editing')
 :'';
 line.appendChild(note);
 card.appendChild(line);
@@ -232,13 +251,13 @@ card.appendChild(
 el('span','notice',presetSummary(values===null?null:values[index],ctx.state.irFileName))
 );
 const foot=el('div','row');
-const identify=el('button',null,index===ctx.state.activePreset?'EDITING':'EDIT '+slotName(index));
+const identify=el('button',null,index===ctx.state.activePreset?t('EDITING'):t('EDIT {slot}',{slot:slotName(index)}));
 identify.setAttribute('data-preset-pick',slotName(index));
 identify.addEventListener('click',function(){
 ctx.setState({activePreset:index});
 });
 foot.appendChild(identify);
-const load=el('button',null,'LOAD INTO');
+const load=el('button',null,t('LOAD INTO'));
 load.setAttribute('data-preset-load',slotName(index));
 load.addEventListener('click',function(){
 openLoad(ctx,section,null,index);
@@ -253,14 +272,14 @@ const found=bankStore();
 list.textContent='';
 if(found.store===null){
 list.appendChild(
-el('p','notice error','This browser will not keep a bank for this page: '+found.error+'. Nothing was lost — nothing was stored.')
+el('p','notice error',t('This browser will not keep a bank for this page: {reason}. Nothing was lost — nothing was stored.',{reason:found.error}))
 );
 return;
 }
 const items=entries();
 if(items.length===0){
 list.appendChild(
-el('p','notice','Nothing saved yet. SAVE keeps the configuration the pedal is holding now.')
+el('p','notice',t('Nothing saved yet. SAVE keeps the configuration the pedal is holding now.'))
 );
 return;
 }
@@ -268,34 +287,34 @@ for(const entry of items){
 const row=el('div','block');
 row.setAttribute('data-entry',entry.id);
 const head=el('div','block-head');
-head.appendChild(el('span','block-title',ascii(entry.name).trim()||'(unnamed)'));
+head.appendChild(el('span','block-title',ascii(entry.name).trim()||t('(unnamed)')));
 const note=el('span','block-note');
 note.setAttribute('data-entry-note',entry.id);
 note.textContent=entryNote(entry);
 head.appendChild(note);
 row.appendChild(head);
 const buttons=el('div','row');
-const load=el('button',null,'LOAD');
+const load=el('button',null,t('LOAD'));
 load.setAttribute('data-entry-load',entry.id);
 load.addEventListener('click',function(){
 openLoad(ctx,list.closest('[data-bank-screen]'),entry,null);
 });
 buttons.appendChild(load);
-const exportOne=el('button',null,'EXPORT');
+const exportOne=el('button',null,t('EXPORT'));
 exportOne.setAttribute('data-entry-export',entry.id);
 exportOne.addEventListener('click',function(){
 exportEntry(ctx,entry);
 });
 buttons.appendChild(exportOne);
-const cabinet=el('button',null,'CABINET');
+const cabinet=el('button',null,t('CABINET'));
 cabinet.setAttribute('data-entry-cabinet',entry.id);
-cabinet.title='download the 4096-byte cabinet this configuration carries';
+cabinet.title=t('download the 4096-byte cabinet this configuration carries');
 cabinet.disabled=entry.ir.length===0;
 cabinet.addEventListener('click',function(){
 exportCabinet(ctx,entry);
 });
 buttons.appendChild(cabinet);
-const remove=el('button','danger','DELETE');
+const remove=el('button','danger',t('DELETE'));
 remove.setAttribute('data-entry-delete',entry.id);
 remove.addEventListener('click',function(){
 deleteEntry(ctx,entry,row);
@@ -309,23 +328,26 @@ function buildCabinetPanel(ctx,section){
 const panel=el('section','block');
 panel.setAttribute('data-cabinet-panel','1');
 const head=el('div','block-head');
-head.appendChild(el('span','block-title','CABINET'));
-const where=el('span','block-note','slot 8 · 0x00070000 · the only writable one');
+const panelTitle=el('span','block-title',t('CABINET'));
+panelTitle.setAttribute('data-cabinet-title','1');
+head.appendChild(panelTitle);
+const where=el('span','block-note',t('slot 8 · 0x00070000 · the only writable one'));
+where.setAttribute('data-cabinet-note','1');
 head.appendChild(where);
 panel.appendChild(head);
 const line=el('p','notice');
 line.setAttribute('data-cabinet-line','1');
-line.textContent='the cabinet slot has not been read';
+line.textContent=t('the cabinet slot has not been read');
 panel.appendChild(line);
 const controls=el('div','row');
-const read=el('button',null,'READ CABINET');
+const read=el('button',null,t('READ CABINET'));
 read.setAttribute('data-action','cabinet-read');
-read.title='37 chunks of 113 bytes, 40 ms apart — the read the pedal was measured to tolerate';
+read.title=t('37 chunks of 113 bytes, 40 ms apart — the read the pedal was measured to tolerate');
 read.addEventListener('click',function(){
 readCabinet(ctx);
 });
 controls.appendChild(read);
-const upload=el('button',null,'IMPORT WAV');
+const upload=el('button',null,t('IMPORT WAV'));
 upload.setAttribute('data-action','cabinet-upload');
 const file=el('input');
 file.type='file';
@@ -342,10 +364,10 @@ file.click();
 });
 controls.appendChild(upload);
 controls.appendChild(file);
-const restore=el('button',null,'RESTORE');
+const restore=el('button',null,t('RESTORE'));
 restore.setAttribute('data-action','cabinet-restore');
 restore.hidden=true;
-restore.title='puts back the sector that was read before the last cabinet write';
+restore.title=t('puts back the sector that was read before the last cabinet write');
 restore.addEventListener('click',function(){
 openUpload(ctx,section,{mode:'restore'});
 });
@@ -362,12 +384,12 @@ return panel;
 }
 async function readCabinet(ctx){
 if(ctx.session===null)return;
-const result=await ctx.perform('reading the cabinet',function(){
+const result=await ctx.perform(t('reading the cabinet'),function(){
 return ctx.session.readCabinet();
 });
 if(result.ok){
 ctx.setState({cabinetRead:true});
-ctx.status('read the pedal\'s cabinet slot: '+result.value.description,result.value.present?'ok':'');
+ctx.status(t('read the pedal\'s cabinet slot: {line}',{line:result.value.description}),result.value.present?'ok':'');
 }
 }
 async function chooseCabinetFile(ctx,section,file){
@@ -402,19 +424,21 @@ dialog.setAttribute('data-dialog','bank-name');
 const title=el('h3');
 title.setAttribute('data-name-title','1');
 dialog.appendChild(title);
-dialog.appendChild(el('p',null,'The name is what you will read in this list. The configuration stays on this machine.'));
+const nameNote=el('p',null,t('The name is what you will read in this list. The configuration stays on this machine.'));
+nameNote.setAttribute('data-name-note','1');
+dialog.appendChild(nameNote);
 const field=el('input');
 field.type='text';
 field.setAttribute('data-name-field','1');
 field.maxLength=60;
 dialog.appendChild(field);
 const row=el('div','row');
-const cancel=el('button',null,'CANCEL');
+const cancel=el('button',null,t('CANCEL'));
 cancel.setAttribute('data-action','name-cancel');
 cancel.addEventListener('click',function(){
 closeDialog(dialog);
 });
-const confirm=el('button','primary','SAVE');
+const confirm=el('button','primary',t('SAVE'));
 confirm.setAttribute('data-action','name-confirm');
 confirm.addEventListener('click',async function(){
 const name=field.value;
@@ -428,7 +452,7 @@ return dialog;
 }
 function openName(ctx,section){
 const dialog=section.querySelector('[data-dialog="bank-name"]');
-dialog.querySelector('[data-name-title]').textContent='Save preset '+slotName(ctx.state.activePreset);
+dialog.querySelector('[data-name-title]').textContent=t('Save preset {slot}',{slot:slotName(ctx.state.activePreset)});
 const field=dialog.querySelector('[data-name-field]');
 field.value='';
 openDialog(dialog);
@@ -437,7 +461,9 @@ field.focus();
 function buildLoadDialog(ctx,section){
 const dialog=el('dialog');
 dialog.setAttribute('data-dialog','bank-load');
-dialog.appendChild(el('h3',null,'Load into'));
+const loadTitle=el('h3',null,t('Load into'));
+loadTitle.setAttribute('data-load-title','1');
+dialog.appendChild(loadTitle);
 const body=el('p');
 body.setAttribute('data-load-body','1');
 dialog.appendChild(body);
@@ -454,7 +480,7 @@ row.appendChild(chip);
 }
 dialog.appendChild(row);
 const foot=el('div','row');
-const cancel=el('button',null,'CANCEL');
+const cancel=el('button',null,t('CANCEL'));
 cancel.setAttribute('data-action','load-cancel');
 cancel.addEventListener('click',function(){
 closeDialog(dialog);
@@ -469,9 +495,10 @@ const dialog=section.querySelector('[data-dialog="bank-load"]');
 loadedEntry=entry;
 dialog.querySelector('[data-load-body]').textContent=
 entry===null
-?'Choose a configuration from the list above, then load it into '+slotName(slot)+'.'
-:'"'+(ascii(entry.name).trim()||'(unnamed)')+'" is applied to the preset you choose. '+
-'A load writes live memory only: SAVE is what makes it survive a power cycle.';
+?t('Choose a configuration from the list above, then load it into {slot}.',{slot:slotName(slot)})
+:t('"{name}" is applied to the preset you choose. A load writes live memory only: SAVE is what makes it survive a power cycle.',{
+name:ascii(entry.name).trim()||t('(unnamed)'),
+});
 openDialog(dialog);
 }
 function buildUploadDialog(ctx,section){
@@ -484,12 +511,12 @@ const body=el('p');
 body.setAttribute('data-upload-body','1');
 dialog.appendChild(body);
 const row=el('div','row');
-const cancel=el('button',null,'CANCEL');
+const cancel=el('button',null,t('CANCEL'));
 cancel.setAttribute('data-action','upload-cancel');
 cancel.addEventListener('click',function(){
 closeDialog(dialog);
 });
-const confirm=el('button','primary','WRITE');
+const confirm=el('button','primary',t('WRITE'));
 confirm.setAttribute('data-action','upload-confirm');
 confirm.addEventListener('click',async function(){
 closeDialog(dialog);
@@ -510,17 +537,18 @@ if(options.mode==='restore'){
 const backup=ctx.session!==null?ctx.session.slotBackup:null;
 if(backup===null)return;
 pending={mode:'restore',sector:backup};
-title.textContent='Put the previous cabinet back?';
-body.textContent=
-'The page kept the '+backup.length+' bytes that were in the slot before the last cabinet write. '+
-'Writing them is the same erase-then-write, and the result is read back and compared.';
-confirm.textContent='RESTORE';
+title.textContent=t('Put the previous cabinet back?');
+body.textContent=t(
+'The page kept the {bytes} bytes that were in the slot before the last cabinet write. Writing them is the same erase-then-write, and the result is read back and compared.',
+{bytes:backup.length}
+);
+confirm.textContent=t('RESTORE');
 }else{
 const gate=pending!==null&&pending.gate!==undefined?pending.gate:null;
 if(gate===null||!gate.ok)return;
-title.textContent='Write this cabinet?';
+title.textContent=t('Write this cabinet?');
 body.textContent=uploadBody(gate);
-confirm.textContent='WRITE';
+confirm.textContent=t('WRITE');
 }
 openDialog(dialog);
 }
@@ -529,12 +557,12 @@ if(ctx.session===null||pending===null)return;
 if(pending.mode==='restore'){
 const sector=pending.sector;
 pending=null;
-const result=await ctx.perform('restoring the cabinet',function(){
+const result=await ctx.perform(t('restoring the cabinet'),function(){
 return ctx.session.restoreCabinet(sector);
 });
 if(result.ok){
 ctx.setState({cabinetRead:true});
-ctx.status('restored: '+result.value.description,'ok');
+ctx.status(t('restored: {line}',{line:result.value.description}),'ok');
 }
 return;
 }
@@ -542,24 +570,24 @@ const buffer=pending.buffer;
 const name=pending.file!==null&&pending.file!==undefined?pending.file.name:'';
 const distance=pending.gate.distance;
 pending=null;
-const result=await ctx.perform('importing the cabinet',function(){
+const result=await ctx.perform(t('importing the cabinet'),function(){
 return ctx.session.uploadCabinet(buffer,{distance:distance});
 });
 if(result.ok){
 ctx.setState({cabinetRead:true,irFileName:name||ctx.state.irFileName});
-ctx.status('wrote the cabinet and read it back: '+result.value.description,'ok');
+ctx.status(t('wrote the cabinet and read it back: {line}',{line:result.value.description}),'ok');
 showRefusal(ctx,section,null);
 }
 }
 async function saveToBank(ctx,section,typedName){
 const found=bankStore();
 if(found.store===null){
-ctx.status('the bank cannot be stored in this browser: '+found.error,'error');
+ctx.status(t('the bank cannot be stored in this browser: {reason}',{reason:found.error}),'error');
 return;
 }
 const values=ctx.session!==null?ctx.session.presets:null;
 if(values===null){
-ctx.status('read the presets first: SAVE stores the sixteen bytes the pedal answered','error');
+ctx.status(t('read the presets first: SAVE stores the sixteen bytes the pedal answered'),'error');
 return;
 }
 const slot=ctx.state.activePreset;
@@ -570,8 +598,9 @@ let ir=new Uint8Array(0);
 if(usesUser){
 if(held===null||held.sector===null){
 ctx.status(
-'preset '+slotName(slot)+' selects cabinet 8 (your slot) and the page has not read it: '+
-'press READ CABINET, then SAVE. Nothing was stored',
+t('preset {slot} selects cabinet 8 (your slot) and the page has not read it: press READ CABINET, then SAVE. Nothing was stored',{
+slot:slotName(slot),
+}),
 'error'
 );
 return;
@@ -581,7 +610,7 @@ ir=held.sector;
 let entry;
 try{
 entry=global.RigShadeBank.createEntry({
-name:ascii(typedName).trim()||'Configuration',
+name:ascii(typedName).trim()||t('Configuration'),
 slot:slot,
 createdAt:Date.now(),
 settings:settings.slice(),
@@ -591,13 +620,19 @@ irName:usesUser?ascii(ctx.state.irFileName):'',
 });
 found.store.add(entry);
 }catch(error){
-ctx.status('the configuration was not stored: '+(error&&error.message?error.message:String(error)),'error');
+ctx.status(t('the configuration was not stored: {reason}',{reason:error&&error.message?error.message:String(error)}),'error');
 return;
 }
 ctx.status(
-'stored "'+entry.name+'" from '+slotName(slot)+
-(usesUser?', with the cabinet the page read from the slot':', settings only')+
-' — the pedal was not written',
+usesUser
+?t('stored "{name}" from {slot}, with the cabinet the page read from the slot — the pedal was not written',{
+name:entry.name,
+slot:slotName(slot),
+})
+:t('stored "{name}" from {slot}, settings only — the pedal was not written',{
+name:entry.name,
+slot:slotName(slot),
+}),
 'ok'
 );
 painted={key:null};
@@ -606,71 +641,83 @@ ctx.setState({});
 async function loadEntry(ctx,entry,slot){
 if(ctx.session===null)return;
 if(!ctx.ready()){
-ctx.status('no pedal connected: a load writes thirteen live values and cannot be done offline','error');
+ctx.status(t('no pedal connected: a load writes thirteen live values and cannot be done offline'),'error');
 return;
 }
 const state=ctx.state;
 if(!state.soundingConfirmed){
 ctx.status(
-'Tap the bank badge and say which bank the pedal is playing, then load: nothing was sent',
+t('Tap the bank badge and say which bank the pedal is playing, then load: nothing was sent'),
 'error'
 );
 return;
 }
 if(slot!==state.soundingPreset){
 ctx.status(
-'the pedal plays '+slotName(state.soundingPreset)+', so a load into '+slotName(slot)+
-' would send thirteen live values it never plays. Tap the badge to declare '+
-slotName(slot)+', or load into '+slotName(state.soundingPreset)+'. Nothing was sent',
+t('the pedal plays {playing}, so a load into {target} would send thirteen live values it never plays. Tap the badge to declare {target}, or load into {playing}. Nothing was sent',{
+playing:slotName(state.soundingPreset),
+target:slotName(slot),
+}),
 'error'
 );
 return;
 }
-const result=await ctx.perform('loading "'+(ascii(entry.name).trim()||'(unnamed)')+'"',function(){
+const result=await ctx.perform(t('loading "{name}"',{name:ascii(entry.name).trim()||t('(unnamed)')}),function(){
 return ctx.session.applyEntry(entry,slot);
 });
 if(result.ok){
-ctx.status(result.value.line+' The live window cannot be read back, so the cabinet half is what was verified.','ok');
+ctx.status(
+t('{line} The live window cannot be read back, so the cabinet half is what was verified.',{
+line:result.value.line,
+}),
+'ok'
+);
 ctx.setState({});
 }
 }
 function exportWholeBank(ctx){
 const items=entries();
 if(items.length===0){
-ctx.status('the bank is empty: there is nothing to export','error');
+ctx.status(t('the bank is empty: there is nothing to export'),'error');
 return;
 }
 let text;
 try{
 text=documentText(items);
 }catch(error){
-ctx.status('the bank could not be written: '+error.message,'error');
+ctx.status(t('the bank could not be written: {reason}',{reason:error.message}),'error');
 return;
 }
 global.RigShadeBankUI.deliverFile(global.RigShadeBank.BackupFileNames.FULL_BANK,text);
 ctx.log('link','exported '+items.length+' configuration(s) as '+global.RigShadeBank.BackupFileNames.FULL_BANK);
-ctx.status('exported '+many(items.length)+' as '+global.RigShadeBank.BackupFileNames.FULL_BANK,'ok');
+ctx.status(
+t('exported {count} as {file}',{count:many(items.length),file:global.RigShadeBank.BackupFileNames.FULL_BANK}),
+'ok'
+);
 }
 function exportEntry(ctx,entry){
 let text;
 try{
 text=documentText([entry]);
 }catch(error){
-ctx.status('"'+ascii(entry.name)+'" could not be written: '+error.message,'error');
+ctx.status(t('"{name}" could not be written: {reason}',{name:ascii(entry.name),reason:error.message}),'error');
 return;
 }
 const name=entryFileName(entry);
 global.RigShadeBankUI.deliverFile(name,text);
-ctx.status('exported "'+(ascii(entry.name).trim()||'(unnamed)')+'" as '+name,'ok');
+ctx.status(t('exported "{name}" as {file}',{name:ascii(entry.name).trim()||t('(unnamed)'),file:name}),'ok');
 }
 function exportCabinet(ctx,entry){
 if(entry.ir.length===0){
-ctx.status('"'+(ascii(entry.name).trim()||'(unnamed)')+'" carries no cabinet','error');
+ctx.status(t('"{name}" carries no cabinet',{name:ascii(entry.name).trim()||t('(unnamed)')}),'error');
 return;
 }
 const name=cabinetFileName(entry);
 global.RigShadeBankUI.deliverFile(name,entry.ir,'application/octet-stream');
-ctx.status('exported the cabinet of "'+(ascii(entry.name).trim()||'(unnamed)')+'" as '+name,'ok');
+ctx.status(
+t('exported the cabinet of "{name}" as {file}',{name:ascii(entry.name).trim()||t('(unnamed)'),file:name}),
+'ok'
+);
 }
 function deleteEntry(ctx,entry,row){
 const found=bankStore();
@@ -678,12 +725,12 @@ if(found.store===null)return;
 try{
 found.store.remove(entry.id);
 }catch(error){
-ctx.status('the entry was not deleted: '+error.message,'error');
+ctx.status(t('the entry was not deleted: {reason}',{reason:error.message}),'error');
 return;
 }
 row.remove();
 painted={key:null};
-ctx.status('deleted "'+(ascii(entry.name).trim()||'(unnamed)')+'" from this browser\'s bank','ok');
+ctx.status(t('deleted "{name}" from this browser\'s bank',{name:ascii(entry.name).trim()||t('(unnamed)')}),'ok');
 ctx.setState({});
 }
 async function importDocument(ctx,section,file){
@@ -693,7 +740,9 @@ let text;
 try{
 text=await file.text();
 }catch(error){
-if(report)report.textContent='the file could not be read: '+error.message+'. Nothing was imported';
+if(report){
+report.textContent=t('the file could not be read: {reason}. Nothing was imported',{reason:error.message});
+}
 return;
 }
 let parsed;
@@ -701,7 +750,7 @@ try{
 parsed=global.RigShadeBank.parseDocument(text);
 }catch(error){
 if(report){
-report.textContent='the file was refused and nothing was imported: '+error.message;
+report.textContent=t('the file was refused and nothing was imported: {reason}',{reason:error.message});
 report.className='notice error';
 }
 ctx.log('failed','import refused: '+error.message);
@@ -709,7 +758,7 @@ return;
 }
 if(found.store===null){
 if(report){
-report.textContent='the file was read but this browser will not keep a bank: '+found.error;
+report.textContent=t('the file was read but this browser will not keep a bank: {reason}',{reason:found.error});
 report.className='notice error';
 }
 return;
@@ -723,40 +772,48 @@ stored.push(entry.name);
 parsed.rejected.push({index:parsed.accepted.indexOf(entry),name:entry.name,reason:error.message});
 }
 }
-const line=
-stored.length+' of '+parsed.accepted.length+' stored'+
-(parsed.rejected.length===0
-?', nothing rejected'
-:'; rejected: '+
-parsed.rejected
+const shown=parsed.rejected
 .slice(0,3)
 .map(function(item){
-return'#'+item.index+' '+(item.name===''?'(unnamed)':'"'+item.name+'"')+': '+item.reason;
+return'#'+item.index+' '+(item.name===''?t('(unnamed)'):'"'+item.name+'"')+': '+item.reason;
 })
-.join('; ')+
-(parsed.rejected.length>3?'; and '+(parsed.rejected.length-3)+' more':''));
+.join('; ');
+const extra=parsed.rejected.length>3
+?t('and {count} more',{count:parsed.rejected.length-3})
+:'';
+const rejected=extra?shown+'; '+extra:shown;
+const line=
+parsed.rejected.length===0
+?t('{stored} of {total} stored, nothing rejected',{stored:stored.length,total:parsed.accepted.length})
+:t('{stored} of {total} stored; rejected: {rejected}',{
+stored:stored.length,
+total:parsed.accepted.length,
+rejected:rejected,
+});
 if(report){
 report.textContent=line;
 report.className='notice'+(parsed.rejected.length===0?' ok':' error');
 }
-ctx.status('import: '+line,parsed.rejected.length===0?'ok':'error');
+ctx.status(t('import: {line}',{line:line}),parsed.rejected.length===0?'ok':'error');
 painted={key:null};
 ctx.setState({});
 }
 function update(root,ctx){
 const section=root.querySelector('[data-bank-screen]');
 if(section===null)return;
+paintBankText(section);
 const found=bankStore();
 const values=ctx.session!==null?ctx.session.presets:null;
 const locked=!ctx.ready()||ctx.state.busy;
 const notice=section.querySelector('[data-bank-notice]');
 notice.textContent=
 found.store===null
-?'This browser will not keep a bank for this page: '+found.error+'. Imports and exports still work.'
-:'Stored in this browser\'s localStorage · nothing leaves this machine. '+
-(values===null?'Read the pedal to save a configuration.':'');
+?t('This browser will not keep a bank for this page: {reason}. Imports and exports still work.',{reason:found.error})
+:t('Stored in this browser\'s localStorage · nothing leaves this machine. {tail}',{
+tail:values===null?t('Read the pedal to save a configuration.'):'',
+});
 const save=section.querySelector('[data-action="bank-save"]');
-save.textContent='SAVE '+slotName(ctx.state.activePreset);
+save.textContent=t('SAVE {slot}',{slot:slotName(ctx.state.activePreset)});
 save.disabled=locked||ctx.session===null||values===null;
 const exportAll=section.querySelector('[data-action="bank-export-all"]');
 exportAll.disabled=found.store===null||entries().length===0;
@@ -774,14 +831,16 @@ const line=section.querySelector('[data-cabinet-line]');
 const describe=section.querySelector('[data-cabinet-held]');
 if(held===null){
 line.textContent=ctx.state.cabinetRead
-?'the slot answered, and holds no cabinet the page can send back'
-:'the cabinet slot has not been read';
+?t('the slot answered, and holds no cabinet the page can send back')
+:t('the cabinet slot has not been read');
 describe.textContent='';
 }else{
-line.textContent=held.description||'the slot holds a cabinet';
-describe.textContent=
-'the page holds this cabinet ('+(held.origin==='WRITTEN_TO_PEDAL'?'written and read back':'read from the slot')+
-'), MIC DIST '+held.distance+'%'+(held.distance>=100?' — 100% silences the cabinet':'');
+line.textContent=held.description||t('the slot holds a cabinet');
+describe.textContent=t('the page holds this cabinet ({origin}), MIC DIST {distance}%{silence}',{
+origin:held.origin==='WRITTEN_TO_PEDAL'?t('written and read back'):t('read from the slot'),
+distance:held.distance,
+silence:held.distance>=100?' '+t('— 100% silences the cabinet'):'',
+});
 }
 section.querySelector('[data-action="cabinet-read"]').disabled=locked||ctx.session===null;
 section.querySelector('[data-action="cabinet-upload"]').disabled=locked||ctx.session===null;
@@ -789,6 +848,30 @@ const restore=section.querySelector('[data-action="cabinet-restore"]');
 const backup=ctx.session!==null?ctx.session.slotBackup:null;
 restore.hidden=backup===null;
 restore.disabled=locked||backup===null;
+}
+function paintBankText(section){
+const set=function(selector,text){
+const node=section.querySelector(selector);
+if(node!==null)node.textContent=text;
+return node;
+};
+set('[data-bank-title]',t('BANK'));
+set('[data-bank-where]',t('kept in this browser · nothing leaves this machine'));
+set('[data-action="bank-export-all"]',t('EXPORT ALL'));
+set('[data-action="bank-import"]',t('IMPORT'));
+set('[data-cabinet-title]',t('CABINET'));
+set('[data-cabinet-note]',t('slot 8 · 0x00070000 · the only writable one'));
+set('[data-action="cabinet-upload"]',t('IMPORT WAV'));
+set('[data-name-note]',t('The name is what you will read in this list. The configuration stays on this machine.'));
+set('[data-action="name-cancel"]',t('CANCEL'));
+set('[data-action="name-confirm"]',t('SAVE'));
+set('[data-load-title]',t('Load into'));
+set('[data-action="load-cancel"]',t('CANCEL'));
+set('[data-action="upload-cancel"]',t('CANCEL'));
+const read=set('[data-action="cabinet-read"]',t('READ CABINET'));
+if(read!==null)read.title=t('37 chunks of 113 bytes, 40 ms apart — the read the pedal was measured to tolerate');
+const restore=set('[data-action="cabinet-restore"]',t('RESTORE'));
+if(restore!==null)restore.title=t('puts back the sector that was read before the last cabinet write');
 }
 UI.registerScreen({
 id:'BANK',
@@ -798,7 +881,13 @@ update:update,
 unmount:function(){
 pending=null;
 loadedEntry=null;
+mountedRoot=null;
+mountedCtx=null;
 },
+});
+document.addEventListener('rigshade:locale',function(){
+painted={key:null};
+if(mountedRoot!==null)update(mountedRoot,mountedCtx);
 });
 global.RigShadeBankUI={
 presetSummary,
