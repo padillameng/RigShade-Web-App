@@ -157,8 +157,15 @@
   .chip.badge { background: transparent; color: var(--sky); border-color: var(--hairline); font-weight: 600; }
   .chip.nav { flex: 0 0 auto; }
 
+  [data-shell="nav-row"] > .chip { flex: 1 1 0; }
+  [data-shell="preset-row"] > .chip.preset { flex: 1 1 0; }
+  [data-shell="preset-row"] > .state { flex: 1 1 100%; }
+
+  @media (max-width: 560px) {
+    [data-shell="nav-row"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
   @media (min-width: 1080px) {
-    [data-shell="nav-row"] > .chip { flex: 1 1 0; }
 
     [data-shell="preset-row"] {
       display: grid;
