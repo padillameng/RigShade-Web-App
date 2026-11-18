@@ -6,8 +6,8 @@ var status=document.querySelector('[data-shell="tester-status"]');
 if(!form){
 return;
 }
-var base=(form.getAttribute('data-issues-url')||'').trim();
-if(!/^https:\/\/[^\s"'<>]+$/.test(base)){
+var mailbox=(form.getAttribute('data-contact-email')||'').trim();
+if(!/^[^\s@,;:"'<>]+@[^\s@,;:"'<>]+\.[^\s@,;:"'<>]+$/.test(mailbox)){
 if(pending){
 pending.hidden=false;
 }
@@ -21,46 +21,41 @@ function field(name){
 var input=form.elements[name];
 return input&&typeof input.value==='string'?input.value.trim():'';
 }
-function issueUrl(values){
+function mailtoUrl(values){
 var email=String(values.email||'').trim();
 var device=String(values.device||'').trim();
 var android=String(values.android||'').trim();
 var notes=String(values.notes||'').trim();
-var title='[Beta tester] '+(device||'request');
+var subject='RigShade beta tester request — '+(device||'Android');
 var body=[
-'### Beta tester request',
+'Beta tester request',
 '',
-'- Email for the promo code: '+(email||'(not given)'),
-'- Phone: '+(device||'(not given)'),
-'- Android: '+(android||'(not given)'),
+'Email for the promo code: '+(email||'(not given)'),
+'Phone: '+(device||'(not given)'),
+'Android: '+(android||'(not given)'),
 '',
-'### Anything else',
-'',
+'Anything else:',
 notes||'(nothing added)',
 '',
-'---',
-'_Written through the RigShade control page._'
-].join('\n');
-var query=new URLSearchParams();
-query.set('title',title);
-query.set('body',body);
-return base+(base.indexOf('?')===-1?'?':'&')+query.toString();
+'--',
+'Sent from the RigShade control page.'
+].join('\r\n');
+return'mailto:'+mailbox+
+'?subject='+encodeURIComponent(subject)+
+'&body='+encodeURIComponent(body);
 }
 form.addEventListener('submit',function(event){
 event.preventDefault();
-var address=issueUrl({
+var address=mailtoUrl({
 email:field('email'),
 device:field('device'),
 android:field('android'),
 notes:field('notes')
 });
 if(status){
-status.textContent='Opening GitHub…';
+status.textContent='Opening your email app — the message goes to '+mailbox+'.';
 }
-var opened=window.open(address,'_blank','noopener');
-if(!opened){
 location.assign(address);
-}
 });
-window.RigShadeTester={issueUrl:issueUrl};
+window.RigShadeTester={mailtoUrl:mailtoUrl,mailbox:mailbox};
 })();
