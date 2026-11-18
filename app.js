@@ -278,17 +278,14 @@ goBack();
 });
 row.appendChild(back);
 for(const destination of targets(state.screen,state.editing)){
+if(!screens.has(destination))continue;
 const chip=document.createElement('button');
 chip.className='chip nav';
 chip.id='nav-'+destination;
 chip.textContent=destination;
-const module=screens.get(destination);
 const current=(destination==='EDIT')===state.editing&&state.screen==='CHAIN';
 chip.setAttribute('aria-pressed',String(current));
-chip.disabled=!state.connected||module===undefined;
-if(module===undefined){
-chip.title='ui-'+destination.toLowerCase()+'.js is not loaded on this page';
-}
+chip.disabled=!state.connected;
 chip.addEventListener('click',function(){
 go(destination);
 });
