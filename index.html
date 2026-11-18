@@ -119,6 +119,28 @@
   .foot .fine a { color: var(--secondary); }
   .foot .row { gap: 12px; }
 
+  .tester-form {
+    display: grid;
+    gap: 10px 16px;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  }
+
+  .tester-form[hidden] { display: none; }
+  .tester-form label { display: grid; gap: 4px; align-items: start; }
+  .tester-form .wide-field { grid-column: 1 / -1; }
+  .tester-form input, .tester-form textarea {
+    font: inherit;
+    font-size: 13px;
+    color: var(--mist);
+    background: var(--inset);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 6px 8px;
+    min-width: 0;
+  }
+  .tester-form textarea { resize: vertical; min-height: 72px; }
+  .tester-form .fine { font-size: 12px; color: var(--tertiary); }
+
   .chip {
     padding: 7px 12px;
     border-radius: 8px;
@@ -488,9 +510,31 @@
     <p>The same three presets, the same chain and the same editor, on a phone, over USB-C. The app is
       in closed testing: one build per round, and the notes that come back decide what the next round
       changes.</p>
-    <p class="row">
-      <span class="notice">The tester list is being set up.</span>
-    </p>
+
+    <form class="tester-form" data-shell="tester-form" data-issues-url="https://github.com/padillameng/RigShade-Web-App/issues/new" hidden>
+      <label>GitHub handle
+        <input name="handle" required maxlength="39" placeholder="octocat" autocomplete="username"
+               spellcheck="false">
+      </label>
+      <label>Phone model
+        <input name="device" required maxlength="60" placeholder="Pixel 7">
+      </label>
+      <label>Android version
+        <input name="android" maxlength="30" placeholder="15">
+      </label>
+      <label class="wide-field">Anything else <span class="state">(optional)</span>
+        <textarea name="notes" maxlength="800" rows="3"
+                  placeholder="The pedal you have, your amp, and what you want to test"></textarea>
+      </label>
+      <p class="fine wide-field">Your answer opens a GitHub issue on this project, and issues are
+        public: the handle, the phone and anything you type can be read by anyone. Do not put an
+        email address, a phone number or a postal address in the note.</p>
+      <div class="row wide-field">
+        <button class="primary" type="submit" data-shell="tester-submit">Request a seat</button>
+        <span class="notice" data-shell="tester-status" role="status"></span>
+      </div>
+    </form>
+    <p class="notice" data-shell="tester-pending">The tester intake is being set up.</p>
     <p class="fine">© RigShade. All rights reserved. · <a href="legal.html#terms">Terms of use</a> ·
       <a href="legal.html#privacy">Privacy</a></p>
     <p class="fine">RigShade is an independent project. It is not affiliated with, endorsed by or
@@ -511,6 +555,7 @@
 <script src="tone-library.js"></script>
 <script src="ui-tonegen.js"></script>
 <script src="ui-library.js"></script>
+<script src="tester.js"></script>
 <script src="boot.js"></script>
 </body>
 </html>
