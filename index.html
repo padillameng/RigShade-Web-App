@@ -56,6 +56,8 @@
   @media (min-width: 1080px) {
     .page { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
     .page > header, .page > .wide, .page > [data-shell="wire"] { grid-column: 1 / -1; }
+
+    .page > .panel:not(.wide) { align-self: stretch; }
   }
 
   .page > *, .panel > * { min-width: 0; }
@@ -142,16 +144,22 @@
   .tester-form .fine { font-size: 12px; color: var(--tertiary); }
 
   .chip {
-    padding: 7px 12px;
+    padding: 8px 12px;
     border-radius: 8px;
     background: var(--inset);
     border: 1px solid var(--hairline-faint);
     color: var(--secondary);
+    font-size: 13px;
+    letter-spacing: 0.03em;
     font-weight: 700;
   }
   .chip[aria-pressed="true"] { background: var(--violet); border-color: var(--violet); color: var(--mist); }
   .chip.badge { background: transparent; color: var(--sky); border-color: var(--hairline); font-weight: 600; }
   .chip.nav { flex: 0 0 auto; }
+
+  @media (min-width: 1080px) {
+    [data-shell="nav-row"] > .chip { flex: 1 1 0; }
+  }
 
   label { display: flex; align-items: center; gap: 8px; color: var(--secondary); font-size: 12px; }
   select {
