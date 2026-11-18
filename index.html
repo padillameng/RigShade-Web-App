@@ -509,12 +509,17 @@
     </div>
     <p>The same three presets, the same chain and the same editor, on a phone, over USB-C. The app is
       in closed testing: one build per round, and the notes that come back decide what the next round
-      changes.</p>
+      changes. Ask for a seat with the form below: the address you leave is where the promo code for
+      that build goes.</p>
 
     <form class="tester-form" data-shell="tester-form" data-issues-url="https://github.com/padillameng/RigShade-Web-App/issues/new" hidden>
       <label>GitHub handle
         <input name="handle" required maxlength="39" placeholder="octocat" autocomplete="username"
                spellcheck="false">
+      </label>
+      <label>Email for the promo code
+        <input name="email" type="email" required maxlength="254" placeholder="you@gmail.com"
+               autocomplete="email" spellcheck="false">
       </label>
       <label>Phone model
         <input name="device" required maxlength="60" placeholder="Pixel 7">
@@ -526,9 +531,10 @@
         <textarea name="notes" maxlength="800" rows="3"
                   placeholder="The pedal you have, your amp, and what you want to test"></textarea>
       </label>
-      <p class="fine wide-field">Your answer opens a GitHub issue on this project, and issues are
-        public: the handle, the phone and anything you type can be read by anyone. Do not put an
-        email address, a phone number or a postal address in the note.</p>
+      <p class="fine wide-field"><strong>The issue this opens is public.</strong> Anyone, including
+        scraping bots, can read the handle, the phone, the email address and anything you type in the
+        note. Use an address you are willing to have on the open internet, and leave a phone number or
+        a postal address out of the note.</p>
       <div class="row wide-field">
         <button class="primary" type="submit" data-shell="tester-submit">Request a seat</button>
         <span class="notice" data-shell="tester-status" role="status"></span>

@@ -23,6 +23,7 @@ return input&&typeof input.value==='string'?input.value.trim():'';
 }
 function issueUrl(values){
 var handle=String(values.handle||'').replace(/^@+/,'').trim();
+var email=String(values.email||'').trim();
 var device=String(values.device||'').trim();
 var android=String(values.android||'').trim();
 var notes=String(values.notes||'').trim();
@@ -31,6 +32,7 @@ var body=[
 '### Beta tester request',
 '',
 '- GitHub: '+(handle?'@'+handle:'(not given)'),
+'- Email for the promo code: '+(email||'(not given)'),
 '- Phone: '+(device||'(not given)'),
 '- Android: '+(android||'(not given)'),
 '',
