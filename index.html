@@ -143,6 +143,29 @@
   .tester-form textarea { resize: vertical; min-height: 72px; }
   .tester-form .fine { font-size: 12px; color: var(--tertiary); }
 
+  .foot-cta { align-items: stretch; }
+  .foot-cta > * { flex: 0 0 auto; }
+  .play-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    background: var(--carbon);
+    border: 1px solid var(--hairline);
+    color: var(--mist);
+    text-decoration: none;
+  }
+  .play-badge:hover { border-color: var(--mint); filter: brightness(1.1); }
+  .play-badge .play-mark { width: 22px; height: 22px; flex: 0 0 auto; }
+  .play-badge .play-copy { display: grid; line-height: 1.15; text-align: left; }
+  .play-badge .play-kicker { font-size: 10px; letter-spacing: 0.14em; color: var(--secondary); }
+  .play-badge .play-name { font-size: 15px; font-weight: 600; }
+  @media (max-width: 560px) {
+    .foot-cta > * { flex: 1 1 100%; }
+  }
+
   .chip {
     padding: 8px 12px;
     border-radius: 8px;
@@ -563,6 +586,20 @@
       </div>
     </form>
     <p class="notice" data-shell="tester-pending">The tester intake is being set up.</p>
+
+    <div class="row foot-cta">
+      <a class="play-badge" data-shell="play-badge" href="https://padillameng.github.io/Rigshade-Site/support/" target="_blank" rel="noopener">
+        <svg class="play-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="var(--mint)" d="M8 4.4v15.2c0 .9 1 1.4 1.8 1l11.4-7.6c.7-.5.7-1.5 0-2L9.8 3.4C9 3 8 3.5 8 4.4z"></path>
+        </svg>
+        <span class="play-copy">
+          <span class="play-kicker">GET IT ON</span>
+          <span class="play-name">Google Play</span>
+        </span>
+      </a>
+      <a class="primary" data-shell="site-link" href="https://padillameng.github.io/Rigshade-Site/"
+         target="_blank" rel="noopener">Visit the RigShade site</a>
+    </div>
     <p class="fine">© RigShade. All rights reserved. · <a href="legal.html#terms">Terms of use</a> ·
       <a href="legal.html#privacy">Privacy</a></p>
     <p class="fine">RigShade is an independent project. It is not affiliated with, endorsed by or
