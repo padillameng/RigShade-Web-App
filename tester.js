@@ -22,16 +22,14 @@ var input=form.elements[name];
 return input&&typeof input.value==='string'?input.value.trim():'';
 }
 function issueUrl(values){
-var handle=String(values.handle||'').replace(/^@+/,'').trim();
 var email=String(values.email||'').trim();
 var device=String(values.device||'').trim();
 var android=String(values.android||'').trim();
 var notes=String(values.notes||'').trim();
-var title='[Beta tester] '+(handle||'request')+(device?' — '+device:'');
+var title='[Beta tester] '+(device||'request');
 var body=[
 '### Beta tester request',
 '',
-'- GitHub: '+(handle?'@'+handle:'(not given)'),
 '- Email for the promo code: '+(email||'(not given)'),
 '- Phone: '+(device||'(not given)'),
 '- Android: '+(android||'(not given)'),
@@ -51,7 +49,7 @@ return base+(base.indexOf('?')===-1?'?':'&')+query.toString();
 form.addEventListener('submit',function(event){
 event.preventDefault();
 var address=issueUrl({
-handle:field('handle'),
+email:field('email'),
 device:field('device'),
 android:field('android'),
 notes:field('notes')

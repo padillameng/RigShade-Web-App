@@ -507,16 +507,15 @@
       <h2>Testers</h2>
       <span class="state">Android app · closed testing</span>
     </div>
-    <p>The same three presets, the same chain and the same editor, on a phone, over USB-C. The app is
-      in closed testing: one build per round, and the notes that come back decide what the next round
-      changes. Ask for a seat with the form below: the address you leave is where the promo code for
-      that build goes.</p>
+    <p>We are running a small closed test of the Android app — the same three presets, the same chain
+      and the same editor, on a phone, over USB-C — to see how it actually feels to use straight from
+      Android: the taps, the swipe, the control that ends up one thumb too far. Your own experience is
+      the part we cannot get any other way, so we would love to count you in. Leave the address where
+      the promo code for the build should go, and we will write to you.</p>
+    <p class="fine">Joining now also means keeping it: whoever picks the app up during the promotional
+      stage uses it free of charge from then on — no subscription, no payment later.</p>
 
     <form class="tester-form" data-shell="tester-form" data-issues-url="https://github.com/padillameng/RigShade-Web-App/issues/new" hidden>
-      <label>GitHub handle
-        <input name="handle" required maxlength="39" placeholder="octocat" autocomplete="username"
-               spellcheck="false">
-      </label>
       <label>Email for the promo code
         <input name="email" type="email" required maxlength="254" placeholder="you@gmail.com"
                autocomplete="email" spellcheck="false">
@@ -531,10 +530,10 @@
         <textarea name="notes" maxlength="800" rows="3"
                   placeholder="The pedal you have, your amp, and what you want to test"></textarea>
       </label>
-      <p class="fine wide-field"><strong>The issue this opens is public.</strong> Anyone, including
-        scraping bots, can read the handle, the phone, the email address and anything you type in the
-        note. Use an address you are willing to have on the open internet, and leave a phone number or
-        a postal address out of the note.</p>
+      <p class="fine wide-field"><strong>The request this opens is public.</strong> Anyone, including
+        scraping bots, can read the email address, the phone and anything you type in the note. Use
+        an address you are willing to have on the open internet, and leave a phone number or a postal
+        address out of the note.</p>
       <div class="row wide-field">
         <button class="primary" type="submit" data-shell="tester-submit">Request a seat</button>
         <span class="notice" data-shell="tester-status" role="status"></span>
