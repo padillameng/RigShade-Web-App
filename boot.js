@@ -14,7 +14,13 @@ link:playingDemo?demo.createLink():undefined,
 });
 if(playingDemo){
 shell.ctx.link.connect();
-demo.startTour();
+let topic=null;
+try{
+topic=new URLSearchParams(location.search).get('topic');
+}catch(error){
+topic=null;
+}
+demo.startTour({go:shell.ctx.go,topic:topic});
 }else if(demo){
 demo.mountEntry();
 }

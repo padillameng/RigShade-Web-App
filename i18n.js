@@ -375,7 +375,27 @@ var es={
 'Next':'Siguiente',
 'Done':'Listo',
 'Leave the demo':'Salir de la demo',
-'{step} of {total}':'{step} de {total}'
+'{step} of {total}':'{step} de {total}',
+'See one part again:':'Volver a ver una parte:',
+'Connect':'Conectar',
+'A / B / C':'A / B / C',
+'Live':'En vivo',
+'CHAIN':'CADENA',
+'What you change, you hear.':'Lo que cambias, lo escuchas.',
+'Every control writes to the pedal when you let go of it, so the sound moves while you play. That write is live: the bank the pedal is playing changes at once, the other two take it when you press SAVE, and nothing survives a power cycle until you save.':'Cada control escribe en el pedal cuando lo sueltas, así el sonido se mueve mientras tocas. Esa escritura es en vivo: el banco que el pedal está tocando cambia al momento, los otros dos lo toman cuando pulsas SAVE, y nada sobrevive a apagar el pedal hasta que guardas.',
+'BANK is where A, B and C are put together. SAVE names the preset the pedal is holding now and keeps it in this browser; the cards say which of A, B or C you are editing. EXPORT writes one saved tone to a file, EXPORT ALL the whole bank, IMPORT reads a file back, and LOAD puts it into A, B or C. The CABINET box reads the pedal\'s cabinet, imports a .wav — the Tone3000 catalogue is one tap away — and RESTORE puts the factory one back.':'BANK es donde se arman A, B y C. SAVE pide un nombre y guarda el preset que el pedal tiene ahora en este navegador; las tarjetas dicen cuál de A, B o C estás editando. EXPORT escribe un tono guardado en un archivo, EXPORT ALL el banco entero, IMPORT lo vuelve a leer y LOAD lo pone en A, B o C. El recuadro CABINET lee el gabinete del pedal, importa un .wav —el catálogo de Tone3000 está a un toque— y RESTORE devuelve el de fábrica.',
+'You hear every change as you make it.':'Escuchas cada cambio mientras lo haces.',
+'Let go of a control and the new value goes to the pedal at once, so you hear it while the note is still ringing. The bank that is sounding changes now; the other two take it when you press SAVE.':'Suelta un control y el valor nuevo va al pedal al momento, así lo escuchas con la nota todavía sonando. El banco que está sonando cambia ahora; los otros dos lo toman cuando pulsas SAVE.',
+'CHAIN is the board of the pedal.':'CHAIN es la tabla del pedal.',
+'Four boxes: AMP, MOD / DELAY, CAB / IR and VOLUME. Tap one to open it; SAVE, RESET and UNDO below act on the preset you are editing.':'Cuatro cajas: AMP, MOD / DELAY, CAB / IR y VOLUME. Toca una para abrirla; SAVE, RESET y UNDO de abajo actúan sobre el preset que estás editando.',
+'EDIT opens the values of one block.':'EDIT abre los valores de un bloque.',
+'The same preset, as the numbers of the block you picked, one line each, with its own SAVE. CHAIN is the board and EDIT is the bench: two views of one preset.':'El mismo preset, como los números del bloque que elegiste, uno por línea, con su propio SAVE. CHAIN es la tabla y EDIT el banco de trabajo: dos vistas de un mismo preset.',
+'TONES starts you from a sound.':'TONES te hace empezar desde un sonido.',
+'LIBRARY holds the 92 researched tones and GENERATE builds one from a description. LOAD INTO THE CHAIN puts the values into the preset you chose, and nothing reaches the pedal until you SAVE.':'LIBRARY tiene los 92 tonos investigados y GENERATE arma uno a partir de una descripción. LOAD INTO THE CHAIN pone los valores en el preset que elegiste, y nada llega al pedal hasta que pulsas SAVE.',
+'BANK keeps your own tones and shares them.':'BANK guarda tus tonos y los comparte.',
+'SAVE asks for a name and keeps the preset the pedal is holding, in this browser; the cards say which of A, B and C you are editing. EXPORT writes one saved tone to a file, EXPORT ALL the whole bank, IMPORT reads one back, and LOAD puts it into A, B or C.':'SAVE pide un nombre y guarda el preset que el pedal tiene ahora, en este navegador; las tarjetas dicen cuál de A, B o C estás editando. EXPORT escribe un tono guardado en un archivo, EXPORT ALL el banco entero, IMPORT lo vuelve a leer, y LOAD lo pone en A, B o C.',
+'CABINET holds the cabinet you choose.':'CABINET guarda el gabinete que elijas.',
+'READ CABINET shows what the pedal carries, IMPORT WAV takes a .wav from your computer, and Get a cabinet from Tone3000 brings one from the catalogue. RESTORE puts the factory one back, and nothing is written until you press WRITE.':'READ CABINET enseña lo que trae el pedal, IMPORT WAV toma un .wav de tu computadora y Get a cabinet from Tone3000 trae uno del catálogo. RESTORE devuelve el de fábrica, y no se escribe nada hasta que pulsas WRITE.'
 };
 var pt={
 'RigShade WebApp':'RigShade WebApp',
@@ -747,7 +767,27 @@ var pt={
 'Next':'Próximo',
 'Done':'Pronto',
 'Leave the demo':'Sair da demo',
-'{step} of {total}':'{step} de {total}'
+'{step} of {total}':'{step} de {total}',
+'See one part again:':'Ver uma parte de novo:',
+'Connect':'Conectar',
+'A / B / C':'A / B / C',
+'Live':'Ao vivo',
+'CHAIN':'CADEIA',
+'What you change, you hear.':'O que você muda, você escuta.',
+'Every control writes to the pedal when you let go of it, so the sound moves while you play. That write is live: the bank the pedal is playing changes at once, the other two take it when you press SAVE, and nothing survives a power cycle until you save.':'Cada controle grava no pedal quando você solta, então o som se move enquanto você toca. Essa gravação é ao vivo: o banco que o pedal está tocando muda na hora, os outros dois recebem quando você pressiona SAVE, e nada sobrevive a desligar o pedal até você salvar.',
+'BANK is where A, B and C are put together. SAVE names the preset the pedal is holding now and keeps it in this browser; the cards say which of A, B or C you are editing. EXPORT writes one saved tone to a file, EXPORT ALL the whole bank, IMPORT reads a file back, and LOAD puts it into A, B or C. The CABINET box reads the pedal\'s cabinet, imports a .wav — the Tone3000 catalogue is one tap away — and RESTORE puts the factory one back.':'BANK é onde A, B e C são montados. SAVE pede um nome e guarda o preset que o pedal tem agora neste navegador; os cartões dizem qual de A, B ou C você está editando. EXPORT grava um tom salvo num arquivo, EXPORT ALL o banco inteiro, IMPORT lê o arquivo de volta e LOAD coloca em A, B ou C. A caixa CABINET lê o gabinete do pedal, importa um .wav — o catálogo do Tone3000 está a um toque — e RESTORE devolve o de fábrica.',
+'You hear every change as you make it.':'Você escuta cada mudança enquanto faz.',
+'Let go of a control and the new value goes to the pedal at once, so you hear it while the note is still ringing. The bank that is sounding changes now; the other two take it when you press SAVE.':'Solte um controle e o valor novo vai ao pedal na hora, então você escuta com a nota ainda soando. O banco que está tocando muda agora; os outros dois recebem quando você pressiona SAVE.',
+'CHAIN is the board of the pedal.':'CHAIN é a prancha do pedal.',
+'Four boxes: AMP, MOD / DELAY, CAB / IR and VOLUME. Tap one to open it; SAVE, RESET and UNDO below act on the preset you are editing.':'Quatro caixas: AMP, MOD / DELAY, CAB / IR e VOLUME. Toque numa para abrir; SAVE, RESET e UNDO embaixo agem sobre o preset que você está editando.',
+'EDIT opens the values of one block.':'EDIT abre os valores de um bloco.',
+'The same preset, as the numbers of the block you picked, one line each, with its own SAVE. CHAIN is the board and EDIT is the bench: two views of one preset.':'O mesmo preset, como os números do bloco que você escolheu, um por linha, com o seu próprio SAVE. CHAIN é a prancha e EDIT é a bancada: duas vistas de um mesmo preset.',
+'TONES starts you from a sound.':'TONES faz você começar de um som.',
+'LIBRARY holds the 92 researched tones and GENERATE builds one from a description. LOAD INTO THE CHAIN puts the values into the preset you chose, and nothing reaches the pedal until you SAVE.':'LIBRARY tem os 92 tons pesquisados e GENERATE monta um a partir de uma descrição. LOAD INTO THE CHAIN coloca os valores no preset que você escolheu, e nada chega ao pedal até você pressionar SAVE.',
+'BANK keeps your own tones and shares them.':'BANK guarda os seus tons e os compartilha.',
+'SAVE asks for a name and keeps the preset the pedal is holding, in this browser; the cards say which of A, B and C you are editing. EXPORT writes one saved tone to a file, EXPORT ALL the whole bank, IMPORT reads one back, and LOAD puts it into A, B or C.':'SAVE pede um nome e guarda o preset que o pedal tem agora, neste navegador; os cartões dizem qual de A, B ou C você está editando. EXPORT grava um tom salvo num arquivo, EXPORT ALL o banco inteiro, IMPORT lê o arquivo de volta, e LOAD coloca em A, B ou C.',
+'CABINET holds the cabinet you choose.':'CABINET guarda o gabinete que você escolher.',
+'READ CABINET shows what the pedal carries, IMPORT WAV takes a .wav from your computer, and Get a cabinet from Tone3000 brings one from the catalogue. RESTORE puts the factory one back, and nothing is written until you press WRITE.':'READ CABINET mostra o que o pedal traz, IMPORT WAV pega um .wav do seu computador e Get a cabinet from Tone3000 traz um do catálogo. RESTORE devolve o de fábrica, e nada é gravado até você pressionar WRITE.'
 };
 var TABLES={en:null,es:es,pt:pt};
 var current=DEFAULT_LOCALE;

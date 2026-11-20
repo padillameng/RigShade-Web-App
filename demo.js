@@ -206,15 +206,85 @@ message:'the demo link is closed: press CONNECT to open it again',
 };
 }
 const STEPS=[
-{target:'[data-shell="connect"]',title:'This is a simulated pedal.',body:'The page is talking to a stand-in pedal inside this browser: nothing is written to a real device, and the cable is not needed.'},
-{target:'[data-shell="preset-row"]',title:'The pedal plays one bank at a time.',body:'A, B and C are the pedal\'s three presets. The badge beside them says which one is sounding: tap it and pick that bank, the way you would tell a friend which one is on.'},
-{target:'[data-board="chain"]',title:'Edit the blocks of the chain.',body:'Tap AMP, MOD / DELAY, CAB / IR or VOLUME, then move a control. With the pedal connected you hear the change as you move it.'},
-{target:'[data-action="chain-save"]',title:'Keep it with SAVE.',body:'SAVE writes the preset into the pedal and reads it back to prove it landed. Nothing is kept until you press it.'},
-{target:'[data-shell="screen"]',title:'That is the whole page.',body:'The rest of the demo is yours to press. To use your real pedal, leave the demo and connect the cable.'},
+{
+key:'connect',
+screen:'CHAIN',
+label:'Connect',
+target:'[data-shell="connect"]',
+title:'This is a simulated pedal.',
+body:'The page is talking to a stand-in pedal inside this browser: nothing is written to a real device, and the cable is not needed.',
+},
+{
+key:'banks',
+screen:'CHAIN',
+label:'A / B / C',
+target:'[data-shell="preset-row"]',
+title:'The pedal plays one bank at a time.',
+body:'A, B and C are the pedal\'s three presets. The badge beside them says which one is sounding: tap it and pick that bank, the way you would tell a friend which one is on.',
+},
+{
+key:'live',
+screen:'CHAIN',
+label:'Live',
+target:'[data-board="chain"]',
+title:'You hear every change as you make it.',
+body:'Let go of a control and the new value goes to the pedal at once, so you hear it while the note is still ringing. The bank that is sounding changes now; the other two take it when you press SAVE.',
+},
+{
+key:'chain',
+screen:'CHAIN',
+label:'CHAIN',
+target:'[data-board="chain"]',
+title:'CHAIN is the board of the pedal.',
+body:'Four boxes: AMP, MOD / DELAY, CAB / IR and VOLUME. Tap one to open it; SAVE, RESET and UNDO below act on the preset you are editing.',
+},
+{
+key:'edit',
+screen:'EDIT',
+label:'EDIT',
+target:'[data-shell="screen"]',
+title:'EDIT opens the values of one block.',
+body:'The same preset, as the numbers of the block you picked, one line each, with its own SAVE. CHAIN is the board and EDIT is the bench: two views of one preset.',
+},
+{
+key:'tones',
+screen:'TONES',
+label:'TONES',
+target:'[data-shell="screen"]',
+title:'TONES starts you from a sound.',
+body:'LIBRARY holds the 92 researched tones and GENERATE builds one from a description. LOAD INTO THE CHAIN puts the values into the preset you chose, and nothing reaches the pedal until you SAVE.',
+},
+{
+key:'bank',
+screen:'BANK',
+label:'BANK',
+target:'[data-bank-actions]',
+title:'BANK keeps your own tones and shares them.',
+body:'SAVE asks for a name and keeps the preset the pedal is holding, in this browser; the cards say which of A, B and C you are editing. EXPORT writes one saved tone to a file, EXPORT ALL the whole bank, IMPORT reads one back, and LOAD puts it into A, B or C.',
+},
+{
+key:'cabinet',
+screen:'BANK',
+label:'CABINET',
+target:'[data-cabinet-panel]',
+title:'CABINET holds the cabinet you choose.',
+body:'READ CABINET shows what the pedal carries, IMPORT WAV takes a .wav from your computer, and Get a cabinet from Tone3000 brings one from the catalogue. RESTORE puts the factory one back, and nothing is written until you press WRITE.',
+},
+{
+key:'done',
+screen:'CHAIN',
+label:'Done',
+target:'[data-shell="screen"]',
+title:'That is the whole page.',
+body:'The rest of the demo is yours to press. To use your real pedal, leave the demo and connect the cable.',
+},
 ];
 const STYLE=[
 '.demo-entry { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0 0; }',
 '.demo-entry span { color: var(--secondary); }',
+'.demo-topics { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; }',
+'.demo-topics span { color: var(--secondary); }',
+'.demo-topics a { color: var(--secondary); border: 1px solid var(--hairline); border-radius: 999px; padding: 4px 10px; text-decoration: none; }',
 '.demo-tour { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 40; max-width: 640px; margin: 0 auto;',
 '  background: var(--panel); border: 1px solid var(--hairline); border-radius: 12px; padding: 14px 16px;',
 '  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); }',
@@ -222,6 +292,9 @@ const STYLE=[
 '.demo-tour p { margin: 0 0 10px; color: var(--secondary); }',
 '.demo-kicker { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mint); margin: 0; }',
 '.demo-tour .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }',
+'.demo-chips { margin: 0 0 10px; gap: 6px; }',
+'.demo-chips button { padding: 4px 10px; font-size: 12px; }',
+'.demo-chips button[aria-pressed="true"] { color: var(--mint); border-color: var(--mint); }',
 '.demo-tour a { color: var(--secondary); }',
 '[data-demo-spot] { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 10px; }',
 ].join('\n');
@@ -235,6 +308,18 @@ document.head.appendChild(style);
 let tour=null;
 let step=0;
 let spot=null;
+let options={};
+let chips=[];
+let atScreen=null;
+function show(screen){
+const go=options.go;
+if(typeof go!=='function'||!screen||screen===atScreen)return;
+atScreen=screen;
+try{
+go(screen);
+}catch(error){
+}
+}
 function clearSpot(){
 if(spot!==null&&spot.removeAttribute)spot.removeAttribute('data-demo-spot');
 spot=null;
@@ -264,6 +349,11 @@ tour.querySelector('[data-demo="back"]').textContent=t('Back');
 tour.querySelector('[data-demo="back"]').disabled=step===0;
 tour.querySelector('[data-demo="next"]').textContent=step===STEPS.length-1?t('Done'):t('Next');
 tour.querySelector('[data-demo="leave"]').textContent=t('Leave the demo');
+for(let index=0;index<chips.length;index++){
+chips[index].textContent=t(STEPS[index].label);
+chips[index].setAttribute('aria-pressed',index===step?'true':'false');
+}
+show(each.screen);
 placeSpot(each.target);
 }
 function close(){
@@ -276,10 +366,16 @@ if(tour===null)return;
 tour.hidden=false;
 paint();
 }
-function startTour(){
+function startTour(settings){
+options=settings||{};
+const wanted=options.topic;
+const found=STEPS.findIndex(function(each){
+return each.key===wanted;
+});
+const opening=found<0?0:found;
 injectStyle();
 if(tour!==null){
-step=0;
+step=opening;
 open();
 return tour;
 }
@@ -294,6 +390,22 @@ const title=document.createElement('h3');
 title.setAttribute('data-demo','title');
 const body=document.createElement('p');
 body.setAttribute('data-demo','body');
+const chooser=document.createElement('div');
+chooser.className='row demo-chips';
+chooser.setAttribute('data-demo','topics');
+chooser.setAttribute('role','group');
+chips=STEPS.map(function(each,index){
+const chip=document.createElement('button');
+chip.setAttribute('type','button');
+chip.setAttribute('data-demo-topic',each.key);
+chip.setAttribute('aria-pressed','false');
+chip.addEventListener('click',function(){
+step=index;
+paint();
+});
+chooser.appendChild(chip);
+return chip;
+});
 const row=document.createElement('div');
 row.className='row';
 const back=document.createElement('button');
@@ -324,6 +436,7 @@ row.appendChild(leave);
 tour.appendChild(kicker);
 tour.appendChild(title);
 tour.appendChild(body);
+tour.appendChild(chooser);
 tour.appendChild(row);
 document.body.appendChild(tour);
 document.addEventListener('keydown',function(event){
@@ -332,7 +445,7 @@ if(event.key==='Escape'&&tour!==null&&!tour.hidden)close();
 document.addEventListener('rigshade:locale',function(){
 if(tour!==null&&!tour.hidden)paint();
 });
-step=0;
+step=opening;
 open();
 return tour;
 }
@@ -350,9 +463,23 @@ const copy=document.createElement('span');
 line.appendChild(link);
 line.appendChild(copy);
 guide.appendChild(line);
+const topics=document.createElement('p');
+topics.className='demo-topics';
+topics.setAttribute('data-demo','entry-topics');
+const heading=document.createElement('span');
+topics.appendChild(heading);
+const links=STEPS.map(function(each){
+const jump=document.createElement('a');
+jump.setAttribute('href','?demo&topic='+encodeURIComponent(each.key));
+topics.appendChild(jump);
+return jump;
+});
+guide.appendChild(topics);
 const paintEntry=function(){
 link.textContent=t('Try the demo — no pedal needed');
 copy.textContent=t('It opens this same page with a simulated pedal, so every button can be pressed without hardware.');
+heading.textContent=t('See one part again:');
+for(let index=0;index<links.length;index++)links[index].textContent=t(STEPS[index].label);
 };
 paintEntry();
 document.addEventListener('rigshade:locale',paintEntry);
