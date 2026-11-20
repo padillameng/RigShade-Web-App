@@ -212,9 +212,32 @@ redirectUri:given.redirectUri===undefined?pageRedirect():given.redirectUri,
 clean:given.clean||cleanAddress,
 };
 }
-function unreachable(url,error){
-return t('the page could not reach {host}: {reason}. Nothing was sent to the pedal.',{
+let blockedByPolicy=null;
+if(global.document&&typeof global.document.addEventListener==='function'){
+try{
+global.document.addEventListener('securitypolicyviolation',function(event){
+if(!event||!event.blockedURI)return;
+blockedByPolicy={
+blocked:String(event.blockedURI),
+rule:String(event.violatedDirective||event.effectiveDirective||''),
+};
+});
+}catch(error){
+}
+}
+function unreachable(url,error,step){
+const stopped=blockedByPolicy;
+if(stopped!==null){
+blockedByPolicy=null;
+return t('the browser blocked the {step} request to {blocked} under the page\'s own safety rule ({rule}), so it never left. Nothing was sent to the pedal.',{
+blocked:stopped.blocked,
+rule:stopped.rule||'Content-Security-Policy',
+step:t(step),
+});
+}
+return t('the page could not reach {host} while asking for {step}: {reason}. Nothing was sent to the pedal.',{
 host:hostOf(url)||String(url),
+step:t(step),
 reason:message(error),
 });
 }
@@ -352,7 +375,7 @@ Accept:'application/json',
 body:body.toString(),
 });
 }catch(error){
-return refusal(unreachable(TOKEN_URL,error));
+return refusal(unreachable(TOKEN_URL,error,step));
 }
 if(!response||!response.ok){
 return refusal(
@@ -416,7 +439,7 @@ response=await s.doFetch(url,{
 headers:{Authorization:'Bearer '+token.value,Accept:'application/json'},
 });
 }catch(error){
-return refusal(unreachable(url,error));
+return refusal(unreachable(url,error,step));
 }
 if(!response||!response.ok){
 return refusal(
@@ -450,7 +473,7 @@ let response;
 try{
 response=await s.doFetch(url,{headers:{Authorization:'Bearer '+token.value}});
 }catch(error){
-return refusal(unreachable(url,error));
+return refusal(unreachable(url,error,'the cabinet file'));
 }
 if(!response||!response.ok){
 return refusal(
