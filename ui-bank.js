@@ -15,7 +15,9 @@ return Object.prototype.hasOwnProperty.call(vars,name)?String(vars[name]):match;
 const IR=9;
 const USER_IR_INDEX=8;
 const USER_SLOT_VALUE=P.CabinetNames.length-1;
-const TONE3000_IR_URL='https://www.tone3000.com/search?format=ir';
+const tone3000Module=function(){
+return global.RigShadeTone3000||null;
+};
 const param=function(code){
 return P.Params.byCode(code);
 };
@@ -365,11 +367,11 @@ file.click();
 });
 controls.appendChild(upload);
 controls.appendChild(file);
-const catalogue=el('a','chip',t('Browse IRs on Tone3000'));
+const catalogue=el('button','chip',t('Get a cabinet from Tone3000'));
 catalogue.setAttribute('data-action','cabinet-tone3000');
-catalogue.href=TONE3000_IR_URL;
-catalogue.target='_blank';
-catalogue.rel='noopener noreferrer';
+catalogue.addEventListener('click',function(){
+startTone3000(ctx,section);
+});
 controls.appendChild(catalogue);
 const restore=el('button',null,t('RESTORE'));
 restore.setAttribute('data-action','cabinet-restore');
@@ -383,9 +385,13 @@ panel.appendChild(controls);
 const source=el('p','notice');
 source.setAttribute('data-cabinet-source','1');
 source.textContent=t(
-'Tone3000 opens in a new tab: pick a cabinet, download its .wav, then press IMPORT WAV. The pedal\'s slot keeps a short cabinet, and the page says how much it will trim before anything is sent.'
+'Tone3000: this box opens their catalogue; you sign in to a free Tone3000 account, pick a cabinet and come back to this page, which downloads it. The pedal\'s slot keeps a short cabinet, and the page says how much it will trim before anything is written.'
 );
 panel.appendChild(source);
+const fetched=el('p','notice');
+fetched.setAttribute('data-cabinet-fetched','1');
+fetched.hidden=true;
+panel.appendChild(fetched);
 const refusal=el('p','notice error');
 refusal.setAttribute('data-cabinet-refusal','1');
 refusal.hidden=true;
@@ -422,6 +428,58 @@ const line=section.querySelector('[data-cabinet-refusal]');
 line.textContent=text===null||text===undefined?'':text;
 line.hidden=text===null||text===undefined;
 if(text)ctx.log('failed',text);
+}
+let tone3000=null;
+let tone3000Refusal=null;
+async function startTone3000(ctx,section){
+const module=tone3000Module();
+if(module===null){
+showRefusal(ctx,section,t('tone3000.js is not loaded, so the catalogue cannot be opened'));
+return;
+}
+tone3000=null;
+showRefusal(ctx,section,null);
+const started=await module.begin();
+if(!started.ok)showRefusal(ctx,section,started.message);
+if(mountedRoot!==null&&mountedCtx!==null)update(mountedRoot,mountedCtx);
+}
+function paintTone3000(section,ctx){
+const line=section.querySelector('[data-cabinet-fetched]');
+if(line===null)return;
+if(tone3000===null){
+line.hidden=true;
+line.textContent='';
+return;
+}
+if(tone3000 .phase==='fetching'){
+line.hidden=false;
+line.textContent=t('Tone3000: fetching the cabinet you chose…');
+return;
+}
+if(ctx.session!==null){
+line.hidden=true;
+line.textContent='';
+return;
+}
+line.hidden=false;
+line.textContent=t(
+'Tone3000 sent "{name}" ({bytes} bytes). Nothing has been sent to the pedal: connect it, and this box asks before writing.',
+{name:tone3000 .name,bytes:tone3000 .buffer?tone3000 .buffer.byteLength:0}
+);
+}
+function deliverTone3000(section,ctx){
+if(tone3000===null||tone3000 .phase!=='ready')return;
+if(ctx.session===null)return;
+const held=tone3000;
+tone3000=null;
+chooseCabinetFile(ctx,section,{
+name:held.name,
+arrayBuffer:function(){
+return Promise.resolve(held.buffer);
+},
+}).catch(function(error){
+showRefusal(ctx,section,error&&error.message?error.message:String(error));
+});
 }
 function openDialog(dialog){
 if(typeof dialog.showModal==='function')dialog.showModal();
@@ -861,6 +919,13 @@ const restore=section.querySelector('[data-action="cabinet-restore"]');
 const backup=ctx.session!==null?ctx.session.slotBackup:null;
 restore.hidden=backup===null;
 restore.disabled=locked||backup===null;
+if(tone3000Refusal!==null){
+const text=tone3000Refusal;
+tone3000Refusal=null;
+showRefusal(ctx,section,text);
+}
+paintTone3000(section,ctx);
+deliverTone3000(section,ctx);
 }
 function paintBankText(section){
 const set=function(selector,text){
@@ -875,9 +940,9 @@ set('[data-action="bank-import"]',t('IMPORT'));
 set('[data-cabinet-title]',t('CABINET'));
 set('[data-cabinet-note]',t('slot 8 · 0x00070000 · the only writable one'));
 set('[data-action="cabinet-upload"]',t('IMPORT WAV'));
-set('[data-action="cabinet-tone3000"]',t('Browse IRs on Tone3000'));
+set('[data-action="cabinet-tone3000"]',t('Get a cabinet from Tone3000'));
 set('[data-cabinet-source]',t(
-'Tone3000 opens in a new tab: pick a cabinet, download its .wav, then press IMPORT WAV. The pedal\'s slot keeps a short cabinet, and the page says how much it will trim before anything is sent.'
+'Tone3000: this box opens their catalogue; you sign in to a free Tone3000 account, pick a cabinet and come back to this page, which downloads it. The pedal\'s slot keeps a short cabinet, and the page says how much it will trim before anything is written.'
 ));
 set('[data-name-note]',t('The name is what you will read in this list. The configuration stays on this machine.'));
 set('[data-action="name-cancel"]',t('CANCEL'));
@@ -906,6 +971,24 @@ document.addEventListener('rigshade:locale',function(){
 painted={key:null};
 if(mountedRoot!==null)update(mountedRoot,mountedCtx);
 });
+(function returning(){
+const module=tone3000Module();
+if(module===null||!module.isConfigured())return;
+if(!module.isReturning(global.location?global.location.search:''))return;
+const settle=function(result){
+if(result.ok){
+tone3000={phase:'ready',name:result.name,buffer:result.buffer};
+}else{
+tone3000=null;
+tone3000Refusal=result.message;
+}
+if(mountedRoot!==null&&mountedCtx!==null)update(mountedRoot,mountedCtx);
+};
+tone3000={phase:'fetching'};
+module.complete().then(settle,function(error){
+settle({ok:false,message:error&&error.message?error.message:String(error)});
+});
+})();
 global.RigShadeBankUI={
 presetSummary,
 entryNote,
