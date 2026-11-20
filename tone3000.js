@@ -439,6 +439,13 @@ function policyMessage(step){
 const stopped=blockedByPolicy;
 if(stopped===null)return null;
 blockedByPolicy=null;
+if(hostAllowed(stopped.blocked)){
+return t('the browser blocked the {step} request to {blocked}, but the page published today does allow {host}: this tab is running an older copy of the page, with the safety rule it had when it was opened. Open the page again and the download will go through. Nothing was sent to the pedal.',{
+blocked:stopped.blocked,
+host:hostOf(stopped.blocked),
+step:t(step),
+});
+}
 return t('the browser blocked the {step} request to {blocked} under the page\'s own safety rule ({rule}), so it never left. Nothing was sent to the pedal.',{
 blocked:stopped.blocked,
 rule:stopped.rule||'Content-Security-Policy',
