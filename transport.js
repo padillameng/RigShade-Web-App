@@ -700,6 +700,13 @@ kind:'NoPedal',
 reason:'port-vanished',
 message:'the port the pedal was on has gone: plug it back in and connect again (MIDI access is kept)',
 });
+return;
+}
+for(const watcher of watchers.slice()){
+try{
+watcher(cloneState(state));
+}catch(error){
+}
 }
 }
 let connecting=null;

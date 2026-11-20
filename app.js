@@ -545,13 +545,29 @@ if(result.ok)status(t('read the three presets: memory 0x05, address 0, 48 bytes'
 else guidance(GUIDANCE.READ_THE_PEDAL_FIRST());
 render();
 }
+let relinking=null;
+let pedalSeen=false;
+function relink(){
+if(link===null||relinking!==null)return;
+if(!pedalSeen||link.state().kind==='Ready')return;
+relinking=link.connect().then(
+function(){
+relinking=null;
+},
+function(){
+relinking=null;
+}
+);
+}
 function wireLink(){
 if(link===null)return;
 link.watch(function(current){
 state.linkKind=current.kind;
 state.linkReason=current.reason||'';
+if(current.kind==='Ready')pedalSeen=true;
 render();
 if(current.kind==='Ready')autoRead(current);
+else relink();
 });
 }
 function start(){
@@ -636,6 +652,10 @@ closeDialog(byId('pick-bank'));
 });
 document.addEventListener('rigshade:locale',function(){
 render();
+});
+document.addEventListener('visibilitychange',function(){
+if(document.visibilityState==='hidden')return;
+relink();
 });
 wireLink();
 render();
