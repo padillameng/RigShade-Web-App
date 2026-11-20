@@ -17,7 +17,7 @@ return{ok:false,message:text};
 const AUTHORIZE_URL='https://www.tone3000.com/api/v1/oauth/authorize';
 const TOKEN_URL='https://www.tone3000.com/api/v1/oauth/token';
 const API_BASE='https://www.tone3000.com/api/v1';
-const HOSTS=['https://www.tone3000.com','https://assets.tone3000.com'];
+const HOSTS=['https://tone3000.com','https://*.tone3000.com'];
 const CLIENT_ID='t3k_pub_0FgMaWjmz2hdJc9IhICkI4uruPu3OVKg';
 const KEYS={
 verifier:'rigshade.tone3000.verifier',
@@ -70,8 +70,28 @@ const match=/^([a-z][a-z0-9+.-]*:)\/\/([^/?#]+)/i.exec(String(url===null||url===
 if(match===null)return'';
 return match[1].toLowerCase()+'//'+match[2].toLowerCase();
 }
+function covers(pattern,host){
+if(pattern===host)return true;
+const star='://*.';
+const at=String(pattern).indexOf(star);
+if(at<0)return false;
+const scheme=pattern.slice(0,at+3);
+const domain=pattern.slice(at+star.length);
+if(String(host).indexOf(scheme)!==0)return false;
+const rest=host.slice(scheme.length);
+return(
+rest.length>domain.length&&
+rest.charAt(rest.length-domain.length-1)==='.'&&
+rest.slice(-domain.length)===domain
+);
+}
 function hostAllowed(url){
-return HOSTS.indexOf(hostOf(url))>=0;
+const host=hostOf(url);
+if(!host)return false;
+for(let index=0;index<HOSTS.length;index+=1){
+if(covers(HOSTS[index],host))return true;
+}
+return false;
 }
 const IR_HASH='ir-content-v1:';
 const NAM_HASH='nam-content-v1:';
@@ -448,7 +468,11 @@ if(meta===null||meta===undefined||typeof meta.getAttribute!=='function')return n
 const content=String(meta.getAttribute('content')||'');
 const found=/(?:^|;)\s*connect-src\s+([^;]*)/i.exec(content);
 if(found===null)return null;
-return found[1].split(/\s+/).indexOf(host)>=0;
+const named=found[1].split(/\s+/);
+for(let index=0;index<named.length;index+=1){
+if(covers(named[index],host))return true;
+}
+return false;
 }
 function policyMessage(step){
 const stopped=blockedByPolicy;
