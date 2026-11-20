@@ -580,33 +580,20 @@
   <footer class="panel wide foot" data-shell="foot">
     <div class="panel-head">
       <h2 data-i18n="Testers">Testers</h2>
-      <span class="state" data-i18n="Android app · closed testing">Android app · closed testing</span>
+      <span class="state" data-i18n="Android app · closed beta">Android app · closed beta</span>
     </div>
-    <p data-i18n="We are running a small closed test of the Android app — the same three presets, the same chain and the same editor, on a phone, over USB-C — to see how it actually feels to use straight from Android: the taps, the swipe, the control that ends up one thumb too far. Your own experience is the part we cannot get any other way, so we would love to count you in. Leave the address where the promo code for the build should go, and we will write to you.">We are running a small closed test of the Android app — the same three presets, the same chain and the same editor, on a phone, over USB-C — to see how it actually feels to use straight from Android: the taps, the swipe, the control that ends up one thumb too far. Your own experience is the part we cannot get any other way, so we would love to count you in. Leave the address where the promo code for the build should go, and we will write to you.</p>
-    <p class="fine" data-i18n="Joining now also means keeping it: whoever picks the app up during the promotional stage uses it free of charge from then on — no subscription, no payment later.">Joining now also means keeping it: whoever picks the app up during the promotional stage uses it free of charge from then on — no subscription, no payment later.</p>
+    <p data-i18n="We are opening a closed beta of the RigShade Android app, and the only thing we need from you is your email: write it below and we will send you access to the test. The app is 100% free — no subscription, nothing to pay later. In exchange we ask you for feedback: use it with your pedal and tell us what works and what you would change. A closed test needs testers who really take part and use the app, which is what Google asks of one, and your comments are what the app gets changed for.">We are opening a closed beta of the RigShade Android app, and the only thing we need from you is your email: write it below and we will send you access to the test. The app is 100% free — no subscription, nothing to pay later. In exchange we ask you for feedback: use it with your pedal and tell us what works and what you would change. A closed test needs testers who really take part and use the app, which is what Google asks of one, and your comments are what the app gets changed for.</p>
+    <p class="fine" data-i18n="Nothing else is asked of you: an address gets you in, and a line or two about how the app behaves on your phone is what we learn from.">Nothing else is asked of you: an address gets you in, and a line or two about how the app behaves on your phone is what we learn from.</p>
 
     <form class="tester-form" data-shell="tester-form" data-contact-email="rigcanvaslab@gmail.com" hidden>
-      <label><span data-i18n="Email for the promo code">Email for the promo code</span>
+      <label class="wide-field"><span data-i18n="Your email">Your email</span>
         <input name="email" type="email" required maxlength="254" placeholder="you@gmail.com"
                data-i18n="you@gmail.com" data-i18n-attr="placeholder"
                autocomplete="email" spellcheck="false">
       </label>
-      <label><span data-i18n="Phone model">Phone model</span>
-        <input name="device" required maxlength="60" placeholder="Pixel 7"
-               data-i18n="Pixel 7" data-i18n-attr="placeholder">
-      </label>
-      <label><span data-i18n="Android version">Android version</span>
-        <input name="android" maxlength="30" placeholder="15"
-               data-i18n="15" data-i18n-attr="placeholder">
-      </label>
-      <label class="wide-field"><span data-i18n="Anything else">Anything else</span> <span class="state" data-i18n="(optional)">(optional)</span>
-        <textarea name="notes" maxlength="800" rows="3"
-                  placeholder="The pedal you have, your amp, and what you want to test"
-                  data-i18n="The pedal you have, your amp, and what you want to test" data-i18n-attr="placeholder"></textarea>
-      </label>
-      <p class="fine wide-field"><strong data-i18n="You send it, we receive it.">You send it, we receive it.</strong> <span data-i18n="The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the code sent to.">The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the code sent to.</span></p>
+      <p class="fine wide-field"><strong data-i18n="You send it, we receive it.">You send it, we receive it.</strong> <span data-i18n="The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the beta invitation sent to.">The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the beta invitation sent to.</span></p>
       <div class="row wide-field">
-        <button class="primary" type="submit" data-shell="tester-submit" data-i18n="Request a seat">Request a seat</button>
+        <button class="primary" type="submit" data-shell="tester-submit" data-i18n="Request access">Request access</button>
         <span class="notice" data-shell="tester-status" role="status"></span>
       </div>
     </form>

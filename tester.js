@@ -36,22 +36,14 @@ return input&&typeof input.value==='string'?input.value.trim():'';
 }
 function mailtoUrl(values){
 var email=String(values.email||'').trim();
-var device=String(values.device||'').trim();
-var android=String(values.android||'').trim();
-var notes=String(values.notes||'').trim();
-var subject=t('RigShade beta tester request — {device}',{device:device||'Android'});
+var subject=t('RigShade closed beta — access request');
 var body=[
-t('Beta tester request'),
+t('Closed beta request'),
 '',
-t('Email for the promo code: {value}',{value:email||t('(not given)')}),
-t('Phone: {value}',{value:device||t('(not given)')}),
-t('Android: {value}',{value:android||t('(not given)')}),
-'',
-t('Anything else:'),
-notes||t('(nothing added)'),
+t('Email for the beta: {value}',{value:email||t('(not given)')}),
 '',
 '--',
-t('Sent from the RigShade control page.')
+t('Sent from the RigShade WebApp.')
 ].join('\r\n');
 return'mailto:'+mailbox+
 '?subject='+encodeURIComponent(subject)+
@@ -59,12 +51,7 @@ return'mailto:'+mailbox+
 }
 form.addEventListener('submit',function(event){
 event.preventDefault();
-var address=mailtoUrl({
-email:field('email'),
-device:field('device'),
-android:field('android'),
-notes:field('notes')
-});
+var address=mailtoUrl({email:field('email')});
 if(status){
 status.textContent=t('Opening your email app — the message goes to {mailbox}.',{mailbox:mailbox});
 }
