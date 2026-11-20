@@ -435,9 +435,9 @@ rule:String(event.violatedDirective||event.effectiveDirective||''),
 }catch(error){
 }
 }
-function unreachable(url,error,step){
+function policyMessage(step){
 const stopped=blockedByPolicy;
-if(stopped!==null){
+if(stopped===null)return null;
 blockedByPolicy=null;
 return t('the browser blocked the {step} request to {blocked} under the page\'s own safety rule ({rule}), so it never left. Nothing was sent to the pedal.',{
 blocked:stopped.blocked,
@@ -445,6 +445,20 @@ rule:stopped.rule||'Content-Security-Policy',
 step:t(step),
 });
 }
+function settle(){
+return new Promise(function(resolve){
+if(typeof global.setTimeout==='function')global.setTimeout(resolve,0);
+else resolve();
+});
+}
+async function policyRefusal(step){
+await settle();
+const named=policyMessage(step);
+return named===null?null:refusal(named);
+}
+function unreachable(url,error,step){
+const named=policyMessage(step);
+if(named!==null)return named;
 return t('the page could not reach {host} while asking for {step}: {reason}. Nothing was sent to the pedal.',{
 host:hostOf(url)||String(url),
 step:t(step),
@@ -667,6 +681,26 @@ return refusal(unreadable(step,error));
 }
 return{ok:true,value:payload};
 }
+async function fetchCabinet(s,url,token){
+try{
+return{ok:true,value:await s.doFetch(url,{headers:{Authorization:'Bearer '+token}})};
+}catch(error){
+const blocked=await policyRefusal('the cabinet file');
+if(blocked!==null)return blocked;
+}
+try{
+return{ok:true,value:await s.doFetch(url,{credentials:'omit'})};
+}catch(error){
+const blocked=await policyRefusal('the cabinet file');
+if(blocked!==null)return blocked;
+return refusal(
+t('the page could not read the cabinet file from {host} ({reason}), with the sign-in token or without it. Nothing was sent to the pedal.',{
+host:hostOf(url)||String(url),
+reason:message(error),
+})
+);
+}
+}
 async function download(s,model,tone){
 const url=String(model.model_url||'');
 if(!hostAllowed(url)){
@@ -679,12 +713,9 @@ host:hostOf(url)||url,
 }
 const token=await accessToken(s);
 if(!token.ok)return token;
-let response;
-try{
-response=await s.doFetch(url,{headers:{Authorization:'Bearer '+token.value}});
-}catch(error){
-return refusal(unreachable(url,error,'the cabinet file'));
-}
+const answered=await fetchCabinet(s,url,token.value);
+if(!answered.ok)return answered;
+const response=answered.value;
 if(!response||!response.ok){
 return refusal(
 t('Tone3000 refused the {step} request ({status}). Nothing was sent to the pedal.',{
