@@ -281,9 +281,10 @@ body:'The rest of the demo is yours to press. To use your real pedal, leave the 
 },
 ];
 const STYLE=[
-'.demo-entry { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0 0; }',
-'.demo-entry span { color: var(--secondary); }',
-'.demo-topics { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; }',
+'.demo-body { display: grid; gap: 10px; margin-top: 12px; }',
+'.demo-body > p { margin: 0; }',
+'.demo-copy { color: var(--secondary); }',
+'.demo-topics { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; }',
 '.demo-topics span { color: var(--secondary); }',
 '.demo-topics a { color: var(--secondary); border: 1px solid var(--hairline); border-radius: 999px; padding: 4px 10px; text-decoration: none; }',
 '.demo-tour { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 40; max-width: 640px; margin: 0 auto;',
@@ -461,16 +462,26 @@ function mountEntry(){
 const guide=document.querySelector('[data-shell="guide"]');
 if(guide===null||guide.querySelector('[data-demo="entry"]')!==null)return;
 injectStyle();
-const line=document.createElement('p');
-line.className='demo-entry';
-line.setAttribute('data-demo','entry');
+const fold=document.createElement('details');
+fold.className='guide-fold demo-fold';
+fold.setAttribute('data-demo','entry');
+const summary=document.createElement('summary');
+const kicker=document.createElement('span');
+kicker.className='guide-kicker';
+const title=document.createElement('span');
+title.className='guide-title';
+summary.appendChild(kicker);
+summary.appendChild(title);
+fold.appendChild(summary);
+const body=document.createElement('div');
+body.className='demo-body';
+const copy=document.createElement('p');
+copy.className='demo-copy';
+body.appendChild(copy);
 const link=document.createElement('a');
 link.className='primary';
 link.setAttribute('href','?demo');
-const copy=document.createElement('span');
-line.appendChild(link);
-line.appendChild(copy);
-guide.appendChild(line);
+body.appendChild(link);
 const topics=document.createElement('p');
 topics.className='demo-topics';
 topics.setAttribute('data-demo','entry-topics');
@@ -482,10 +493,14 @@ jump.setAttribute('href','?demo&topic='+encodeURIComponent(each.key));
 topics.appendChild(jump);
 return jump;
 });
-guide.appendChild(topics);
+body.appendChild(topics);
+fold.appendChild(body);
+guide.appendChild(fold);
 const paintEntry=function(){
-link.textContent=t('Try the demo — no pedal needed');
+kicker.textContent=t('Demo');
+title.textContent=t('Try the demo — no pedal needed');
 copy.textContent=t('It opens this same page with a simulated pedal, so every button can be pressed without hardware.');
+link.textContent=t('Open the demo');
 heading.textContent=t('See one part again:');
 for(let index=0;index<links.length;index++)links[index].textContent=t(STEPS[index].label);
 };
