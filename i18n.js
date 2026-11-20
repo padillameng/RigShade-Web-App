@@ -357,7 +357,25 @@ var es={
 '· high confidence':'· confianza alta',
 '· one match':'· una coincidencia',
 '· showing the first {max}':'· mostrando los primeros {max}',
-'— 100% silences the cabinet':'— el 100% silencia el gabinete'
+'— 100% silences the cabinet':'— el 100% silencia el gabinete',
+'Try the demo — no pedal needed':'Probar la demo — no hace falta pedal',
+'It opens this same page with a simulated pedal, so every button can be pressed without hardware.':'Abre esta misma página con un pedal simulado, así se puede pulsar cada botón sin tener el aparato.',
+'Demo':'Demo',
+'This is a simulated pedal.':'Este es un pedal simulado.',
+'The page is talking to a stand-in pedal inside this browser: nothing is written to a real device, and the cable is not needed.':'La página habla con un pedal de mentira dentro de este navegador: no se escribe nada en un aparato real y no hace falta el cable.',
+'The pedal plays one bank at a time.':'El pedal suena un banco a la vez.',
+'A, B and C are the pedal\'s three presets. The badge beside them says which one is sounding: tap it and pick that bank, the way you would tell a friend which one is on.':'A, B y C son los tres presets del pedal. La etiqueta de al lado dice cuál está sonando: tócala y elige ese banco, como le dirías a un amigo cuál está puesto.',
+'Edit the blocks of the chain.':'Edita los bloques de la cadena.',
+'Tap AMP, MOD / DELAY, CAB / IR or VOLUME, then move a control. With the pedal connected you hear the change as you move it.':'Toca AMP, MOD / DELAY, CAB / IR o VOLUME y luego mueve un control. Con el pedal conectado escuchas el cambio mientras lo mueves.',
+'Keep it with SAVE.':'Guárdalo con SAVE.',
+'SAVE writes the preset into the pedal and reads it back to prove it landed. Nothing is kept until you press it.':'SAVE escribe el preset en el pedal y lo vuelve a leer para comprobar que llegó. Nada se guarda hasta que lo pulsas.',
+'That is the whole page.':'Eso es toda la página.',
+'The rest of the demo is yours to press. To use your real pedal, leave the demo and connect the cable.':'Lo que queda de la demo es tuyo para pulsarlo. Para usar tu pedal de verdad, sal de la demo y conecta el cable.',
+'Back':'Atrás',
+'Next':'Siguiente',
+'Done':'Listo',
+'Leave the demo':'Salir de la demo',
+'{step} of {total}':'{step} de {total}'
 };
 var pt={
 'RigShade WebApp':'RigShade WebApp',
@@ -711,7 +729,25 @@ var pt={
 '· high confidence':'· confiança alta',
 '· one match':'· uma correspondência',
 '· showing the first {max}':'· mostrando os primeiros {max}',
-'— 100% silences the cabinet':'— 100% silencia o gabinete'
+'— 100% silences the cabinet':'— 100% silencia o gabinete',
+'Try the demo — no pedal needed':'Testar a demo — não precisa do pedal',
+'It opens this same page with a simulated pedal, so every button can be pressed without hardware.':'Abre esta mesma página com um pedal simulado, então dá para apertar cada botão sem o aparelho.',
+'Demo':'Demo',
+'This is a simulated pedal.':'Este é um pedal simulado.',
+'The page is talking to a stand-in pedal inside this browser: nothing is written to a real device, and the cable is not needed.':'A página fala com um pedal de mentira dentro deste navegador: nada é gravado em um aparelho real e o cabo não é necessário.',
+'The pedal plays one bank at a time.':'O pedal toca um banco por vez.',
+'A, B and C are the pedal\'s three presets. The badge beside them says which one is sounding: tap it and pick that bank, the way you would tell a friend which one is on.':'A, B e C são os três presets do pedal. A etiqueta ao lado diz qual está tocando: toque nela e escolha esse banco, como você diria a um amigo qual está ligado.',
+'Edit the blocks of the chain.':'Edite os blocos da cadeia.',
+'Tap AMP, MOD / DELAY, CAB / IR or VOLUME, then move a control. With the pedal connected you hear the change as you move it.':'Toque em AMP, MOD / DELAY, CAB / IR ou VOLUME e depois mova um controle. Com o pedal conectado você ouve a mudança enquanto move.',
+'Keep it with SAVE.':'Guarde com SAVE.',
+'SAVE writes the preset into the pedal and reads it back to prove it landed. Nothing is kept until you press it.':'SAVE grava o preset no pedal e lê de volta para comprovar que chegou. Nada é guardado até você apertar.',
+'That is the whole page.':'Isso é a página inteira.',
+'The rest of the demo is yours to press. To use your real pedal, leave the demo and connect the cable.':'O resto da demo é seu para apertar. Para usar seu pedal de verdade, saia da demo e conecte o cabo.',
+'Back':'Voltar',
+'Next':'Próximo',
+'Done':'Pronto',
+'Leave the demo':'Sair da demo',
+'{step} of {total}':'{step} de {total}'
 };
 var TABLES={en:null,es:es,pt:pt};
 var current=DEFAULT_LOCALE;
