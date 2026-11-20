@@ -408,10 +408,17 @@ if(ctx.session===null)return;
 const result=await ctx.perform(t('saving'),function(){
 return ctx.session.savePresets();
 });
-if(result.ok){
-ctx.status(t('the three presets were written and read back identical'),'ok');
-}else{
+if(!result.ok){
 ctx.guidance(UI.guidanceTable.SAVE_NOT_CONFIRMED());
+return;
+}
+const cabinet=result.value!==null&&result.value!==undefined?result.value.cabinet:null;
+if(cabinet!==null&&cabinet!==undefined){
+ctx.status(t('the presets were saved, and MIC DIST {percent}% is now stored in the cabinet slot',{percent:cabinet.percent}),'ok');
+}else if(result.value!==null&&result.value!==undefined&&result.value.cabinetError){
+ctx.status(t('the presets were saved, but the cabinet distance was not: {reason}',{reason:result.value.cabinetError}),'error');
+}else{
+ctx.status(t('the three presets were written and read back identical'),'ok');
 }
 }
 function openReset(ctx,root){

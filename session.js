@@ -386,6 +386,7 @@ origin:heldCabinet.origin,
 vouched:heldCabinet.vouched,
 sector:heldCabinet.sector===null?null:heldCabinet.sector.slice(),
 description:heldCabinet.description,
+pending:typeof heldCabinet.pending==='number'?heldCabinet.pending:null,
 };
 }
 async function requestName(){
@@ -451,7 +452,15 @@ throw new SessionError(
 }
 localCopy=Presets.fromBlock(answer);
 dirty=false;
-return snapshot();
+const presets=snapshot();
+presets.cabinet=null;
+presets.cabinetError=null;
+try{
+presets.cabinet=await storePendingDistance();
+}catch(error){
+presets.cabinetError=error instanceof SessionError?error.message:String((error&&error.message)||error);
+}
+return presets;
 }
 async function readUserSector(){
 const cabinet=needCabinet();
@@ -649,52 +658,52 @@ return cabinetWork(async function(){
 step('cabinet');
 await applyLiveBlock(live);
 const stored=heldCabinet.distance;
-if(stored===percent){
-heldCabinet=holdFromWrite(heldCabinet.sector,percent,samples);
+const pending=stored===percent?null:percent;
+heldCabinet={
+samples:samples,
+distance:percent,
+origin:heldCabinet.origin,
+vouched:heldCabinet.vouched,
+sector:heldCabinet.sector===null?null:heldCabinet.sector.slice(),
+description:heldCabinet.description,
+pending:pending,
+};
 return{
-outcome:'live-only',
+outcome:'live',
 percent:percent,
-reason:'SLOT_HOLDS_THIS',
+reason:pending===null?'SLOT_HOLDS_THIS':'NOT_STORED_YET',
 line:
-'The pedal\'s stored cabinet already holds '+percent+'%, so nothing needed writing',
+pending===null
+?'The pedal\'s stored cabinet already holds '+percent+'%, so nothing needed writing'
+:'MIC DIST is '+percent+'% and the pedal is playing it. SAVE writes it into the cabinet '+
+'slot so a bank change keeps it; until then the slot holds '+
+(stored===undefined||stored===null?'a distance the page has not read':stored+'%'),
 previous:null,
 silent:cabinet.silentAt(percent),
 held:cabinetView(),
 };
+});
 }
+async function storePendingDistance(){
+const cabinet=needCabinet();
+if(heldCabinet===null)return null;
+const percent=heldCabinet.pending;
+if(!Number.isFinite(percent))return null;
+const samples=heldCabinet.samples.slice();
 const sector=cabinet.buildSector({samples:samples,distance:percent});
+const live=cabinet.buildLiveBlock({samples:samples,distance:percent});
 const payload=cabinet.payloadProblem(sector,live);
 if(payload!==null)throw new SessionError(cabinet.refusalMessage(payload));
-try{
+return cabinetWork(async function(){
+step('cabinet');
 const previous=await eraseWriteVerify(sector,true);
 heldCabinet=holdFromWrite(sector,percent,samples);
 return{
-outcome:'stored',
 percent:percent,
-reason:stored===undefined||stored===null?'SLOT_NEVER_READ':'SLOT_HOLDS_ANOTHER',
-line:
-(stored===undefined||stored===null
-?'The pedal\'s slot had not been read, so the distance was written to it'
-:'The pedal\'s stored cabinet held '+stored+'%, so it now holds '+percent+'%')+
-'; RESTORE puts the previous cabinet back',
 previous:previous,
 silent:cabinet.silentAt(percent),
 held:cabinetView(),
 };
-}catch(error){
-if(!(error instanceof SessionError))throw error;
-return{
-outcome:'live-only',
-percent:percent,
-reason:'STORED_COPY_UNKNOWN',
-line:
-'MIC DIST is '+percent+'%, live only: the cabinet slot may have been erased ('+
-error.message+'). RESTORE puts back the cabinet that was there',
-previous:slotBackup===null?null:slotBackup.slice(),
-silent:cabinet.silentAt(percent),
-held:cabinetView(),
-};
-}
 });
 }
 async function cleanUserSlot(){
