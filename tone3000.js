@@ -144,6 +144,159 @@ return held&&typeof held.access==='string'?held:null;
 return null;
 }
 }
+const ZIP_LOCAL=0x04034b50;
+const ZIP_CENTRAL=0x02014b50;
+const ZIP_EOCD=0x06054b50;
+const ZIP_EOCD_MIN=22;
+const ZIP_COMMENT_MAX=65535;
+const ZIP_MEMBER_LIMIT=64*1024*1024;
+const RATE_HINT=[/(^|[^0-9])(48000|48k|48khz)([^0-9]|$)/i,/(^|[^0-9])(44100|44\.1|44k|44khz)([^0-9]|$)/i];
+function asBytes(input){
+if(input instanceof Uint8Array)return input;
+if(input instanceof ArrayBuffer)return new Uint8Array(input);
+if(input&&input.buffer instanceof ArrayBuffer){
+return new Uint8Array(input.buffer,input.byteOffset||0,input.byteLength||0);
+}
+return new Uint8Array(0);
+}
+function isZip(input){
+const bytes=asBytes(input);
+if(bytes.length<ZIP_EOCD_MIN)return false;
+if(bytes[0]!==0x50||bytes[1]!==0x4b)return false;
+return(bytes[2]===3&&bytes[3]===4)||(bytes[2]===5&&bytes[3]===6);
+}
+function memberName(bytes,from,length){
+const slice=bytes.subarray(from,from+length);
+if(typeof global.TextDecoder==='function')return new global.TextDecoder().decode(slice);
+let text='';
+for(let index=0;index<slice.length;index+=1)text+=String.fromCharCode(slice[index]);
+return text;
+}
+function directoryEnd(bytes,view){
+const floor=Math.max(bytes.length-ZIP_EOCD_MIN-ZIP_COMMENT_MAX,0);
+for(let at=bytes.length-ZIP_EOCD_MIN;at>=floor;at-=1){
+if(view.getUint32(at,true)===ZIP_EOCD)return at;
+}
+return-1;
+}
+function zipMembers(input){
+const bytes=asBytes(input);
+if(!isZip(bytes))return[];
+const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
+const end=directoryEnd(bytes,view);
+if(end<0)throw new Error('no end-of-directory record');
+const count=view.getUint16(end+10,true);
+const start=view.getUint32(end+16,true);
+if(count===0xffff||start===0xffffffff)throw new Error('this is a ZIP64 package');
+const members=[];
+let at=start;
+for(let index=0;index<count;index+=1){
+if(at+46>bytes.length)throw new Error('the directory is cut short');
+if(view.getUint32(at,true)!==ZIP_CENTRAL)throw new Error('the directory is not where the package says');
+const nameLength=view.getUint16(at+28,true);
+const extraLength=view.getUint16(at+30,true);
+const commentLength=view.getUint16(at+32,true);
+members.push({
+name:memberName(bytes,at+46,nameLength),
+method:view.getUint16(at+10,true),
+compressed:view.getUint32(at+20,true),
+size:view.getUint32(at+24,true),
+local:view.getUint32(at+42,true),
+});
+at+=46+nameLength+extraLength+commentLength;
+}
+return members;
+}
+function memberBytes(bytes,member){
+if(member.size>ZIP_MEMBER_LIMIT){
+throw new Error('"'+member.name+'" is '+member.size+' bytes, past the '+ZIP_MEMBER_LIMIT+'-byte limit');
+}
+const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
+if(member.local+30>bytes.length||view.getUint32(member.local,true)!==ZIP_LOCAL){
+throw new Error('"'+member.name+'" does not start where the package says');
+}
+const from=member.local+30+view.getUint16(member.local+26,true)+view.getUint16(member.local+28,true);
+const to=from+member.compressed;
+if(to>bytes.length)throw new Error('"'+member.name+'" runs past the end of the package');
+return bytes.subarray(from,to);
+}
+function pickWav(members){
+const wavs=[];
+for(let index=0;index<members.length;index+=1){
+if(/\.wav$/i.test(String(members[index].name||'')))wavs.push(members[index]);
+}
+if(wavs.length===0)return null;
+for(let hint=0;hint<RATE_HINT.length;hint+=1){
+for(let index=0;index<wavs.length;index+=1){
+if(RATE_HINT[hint].test(wavs[index].name))return wavs[index];
+}
+}
+return wavs[0];
+}
+function describeMembers(members){
+if(!members.length)return t('the package came back empty');
+const shown=[];
+for(let index=0;index<members.length&&shown.length<3;index+=1){
+shown.push('"'+(String(members[index].name||'').trim()||'unnamed')+'"');
+}
+return shown.join(', ');
+}
+async function inflate(member,bytes){
+if(member.method===0)return memberBytes(bytes,member);
+if(member.method!==8)throw new Error('compression method '+member.method+' is not one it can read');
+const Stream=global.DecompressionStream;
+if(typeof Stream!=='function'||typeof global.Response!=='function'||typeof global.Blob!=='function'){
+throw new Error('this browser cannot unpack deflated members (no DecompressionStream)');
+}
+const stream=new global.Blob([memberBytes(bytes,member)]).stream().pipeThrough(new Stream('deflate-raw'));
+const flat=await new global.Response(stream).arrayBuffer();
+if(flat.byteLength!==member.size){
+throw new Error('"'+member.name+'" unpacked to '+flat.byteLength+' bytes, not the '+member.size+' it declares');
+}
+return new Uint8Array(flat);
+}
+async function extractCabinet(input){
+const bytes=asBytes(input);
+if(!isZip(bytes))return{ok:true,packed:false,buffer:bytes};
+let members;
+try{
+members=zipMembers(bytes);
+}catch(error){
+return refusal(
+t('Tone3000 sent a ZIP package that this page could not read ({reason}). Nothing was sent to the pedal.',{
+reason:message(error),
+})
+);
+}
+const wav=pickWav(members);
+if(wav===null){
+return refusal(
+t('Tone3000 sent a ZIP package and it holds no .wav file ({detail}), so there is no cabinet to offer. Nothing was sent to the pedal.',{
+detail:describeMembers(members),
+})
+);
+}
+let unpacked;
+try{
+unpacked=await inflate(wav,bytes);
+}catch(error){
+return refusal(
+t('Tone3000 sent a ZIP package that this page could not read ({reason}). Nothing was sent to the pedal.',{
+reason:message(error),
+})
+);
+}
+if(!unpacked||!unpacked.byteLength){
+return refusal(
+t('Tone3000 sent a ZIP package that this page could not read ({reason}). Nothing was sent to the pedal.',{
+reason:'"'+wav.name+'" is empty',
+})
+);
+}
+const copy=new Uint8Array(unpacked.length);
+copy.set(unpacked);
+return{ok:true,packed:true,name:wav.name,buffer:copy.buffer};
+}
 function defaultStore(){
 let area=null;
 try{
@@ -492,6 +645,9 @@ return refusal(unreadable('the cabinet file',error));
 if(!buffer||!buffer.byteLength){
 return refusal(t('the file Tone3000 sent is empty, so nothing was offered. Nothing was sent to the pedal.'));
 }
+const unpacked=await extractCabinet(buffer);
+if(!unpacked.ok)return unpacked;
+if(unpacked.packed)return{ok:true,name:fileNameFor(unpacked.name,url),buffer:unpacked.buffer};
 const named=String(model.name||'').trim()||String((tone&&tone.name)||'').trim();
 return{ok:true,name:fileNameFor(named,url),buffer:buffer};
 }
@@ -518,6 +674,10 @@ challengeFor,
 randomVerifier,
 pickModel,
 fileNameFor,
+isZip,
+extractCabinet,
+zipMembers,
+pickWav,
 hostOf,
 hostAllowed,
 KEYS,
