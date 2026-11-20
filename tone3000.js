@@ -220,18 +220,49 @@ const to=from+member.compressed;
 if(to>bytes.length)throw new Error('"'+member.name+'" runs past the end of the package');
 return bytes.subarray(from,to);
 }
-function pickWav(members){
+function wavMembers(members){
 const wavs=[];
 for(let index=0;index<members.length;index+=1){
 if(/\.wav$/i.test(String(members[index].name||'')))wavs.push(members[index]);
 }
-if(wavs.length===0)return null;
+const ordered=[];
 for(let hint=0;hint<RATE_HINT.length;hint+=1){
 for(let index=0;index<wavs.length;index+=1){
-if(RATE_HINT[hint].test(wavs[index].name))return wavs[index];
+if(ordered.indexOf(wavs[index])<0&&RATE_HINT[hint].test(wavs[index].name))ordered.push(wavs[index]);
 }
 }
-return wavs[0];
+for(let index=0;index<wavs.length;index+=1){
+if(ordered.indexOf(wavs[index])<0)ordered.push(wavs[index]);
+}
+return ordered;
+}
+function pickWav(members){
+const wavs=wavMembers(members);
+return wavs.length===0?null:wavs[0];
+}
+function cabinetLabel(name){
+const path=String(name===null||name===undefined?'':name).replace(/\\/g,'/');
+const base=path.slice(path.lastIndexOf('/')+1).trim();
+const bare=base.replace(/\.wav$/i,'').trim();
+return bare||base||'cabinet';
+}
+function choiceLabels(members){
+const base=[];
+const seen={};
+let repeated=false;
+for(let index=0;index<members.length;index+=1){
+const label=cabinetLabel(members[index].name);
+if(seen[label])repeated=true;
+seen[label]=true;
+base.push(label);
+}
+if(!repeated)return base;
+const whole=[];
+for(let index=0;index<members.length;index+=1){
+const name=String(members[index].name||'').trim();
+whole.push(name||'cabinet.wav');
+}
+return whole;
 }
 function describeMembers(members){
 if(!members.length)return t('the package came back empty');
@@ -255,6 +286,28 @@ throw new Error('"'+member.name+'" unpacked to '+flat.byteLength+' bytes, not th
 }
 return new Uint8Array(flat);
 }
+async function unpackMember(bytes,member){
+let unpacked;
+try{
+unpacked=await inflate(member,bytes);
+}catch(error){
+return refusal(
+t('Tone3000 sent a ZIP package that this page could not read ({reason}). Nothing was sent to the pedal.',{
+reason:message(error),
+})
+);
+}
+if(!unpacked||!unpacked.byteLength){
+return refusal(
+t('Tone3000 sent a ZIP package that this page could not read ({reason}). Nothing was sent to the pedal.',{
+reason:'"'+member.name+'" is empty',
+})
+);
+}
+const copy=new Uint8Array(unpacked.length);
+copy.set(unpacked);
+return{ok:true,buffer:copy.buffer};
+}
 async function extractCabinet(input){
 const bytes=asBytes(input);
 if(!isZip(bytes))return{ok:true,packed:false,buffer:bytes};
@@ -268,34 +321,38 @@ reason:message(error),
 })
 );
 }
-const wav=pickWav(members);
-if(wav===null){
+const wavs=wavMembers(members);
+if(wavs.length===0){
 return refusal(
 t('Tone3000 sent a ZIP package and it holds no .wav file ({detail}), so there is no cabinet to offer. Nothing was sent to the pedal.',{
 detail:describeMembers(members),
 })
 );
 }
-let unpacked;
-try{
-unpacked=await inflate(wav,bytes);
-}catch(error){
-return refusal(
-t('Tone3000 sent a ZIP package that this page could not read ({reason}). Nothing was sent to the pedal.',{
-reason:message(error),
-})
-);
+if(wavs.length===1){
+const only=await unpackMember(bytes,wavs[0]);
+if(!only.ok)return only;
+return{ok:true,packed:true,name:wavs[0].name,buffer:only.buffer};
 }
-if(!unpacked||!unpacked.byteLength){
-return refusal(
-t('Tone3000 sent a ZIP package that this page could not read ({reason}). Nothing was sent to the pedal.',{
-reason:'"'+wav.name+'" is empty',
-})
-);
+const labels=choiceLabels(wavs);
+const choices=[];
+for(let index=0;index<wavs.length;index+=1){
+choices.push({name:labels[index]});
 }
-const copy=new Uint8Array(unpacked.length);
-copy.set(unpacked);
-return{ok:true,packed:true,name:wav.name,buffer:copy.buffer};
+return{
+ok:true,
+packed:true,
+choices:choices,
+read:async function(index){
+const member=wavs[index];
+if(!member){
+return refusal(t('that cabinet is no longer in the package, so nothing was offered. Nothing was sent to the pedal.'));
+}
+const one=await unpackMember(bytes,member);
+if(!one.ok)return one;
+return{ok:true,name:member.name,buffer:one.buffer};
+},
+};
 }
 function defaultStore(){
 let area=null;
@@ -647,6 +704,18 @@ return refusal(t('the file Tone3000 sent is empty, so nothing was offered. Nothi
 }
 const unpacked=await extractCabinet(buffer);
 if(!unpacked.ok)return unpacked;
+if(unpacked.choices){
+const read=unpacked.read;
+return{
+ok:true,
+choices:unpacked.choices,
+read:async function(index){
+const one=await read(index);
+if(!one.ok)return one;
+return{ok:true,name:fileNameFor(one.name,url),buffer:one.buffer};
+},
+};
+}
 if(unpacked.packed)return{ok:true,name:fileNameFor(unpacked.name,url),buffer:unpacked.buffer};
 const named=String(model.name||'').trim()||String((tone&&tone.name)||'').trim();
 return{ok:true,name:fileNameFor(named,url),buffer:buffer};
@@ -678,6 +747,9 @@ isZip,
 extractCabinet,
 zipMembers,
 pickWav,
+wavMembers,
+cabinetLabel,
+choiceLabels,
 hostOf,
 hostAllowed,
 KEYS,

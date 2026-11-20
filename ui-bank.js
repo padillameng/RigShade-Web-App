@@ -392,6 +392,16 @@ const fetched=el('p','notice');
 fetched.setAttribute('data-cabinet-fetched','1');
 fetched.hidden=true;
 panel.appendChild(fetched);
+const pickBlock=el('div');
+pickBlock.setAttribute('data-cabinet-picker-block','1');
+pickBlock.hidden=true;
+const pickNote=el('p','notice');
+pickNote.setAttribute('data-cabinet-picker-note','1');
+pickBlock.appendChild(pickNote);
+const pickList=el('div','row');
+pickList.setAttribute('data-cabinet-picker','1');
+pickBlock.appendChild(pickList);
+panel.appendChild(pickBlock);
 const refusal=el('p','notice error');
 refusal.setAttribute('data-cabinet-refusal','1');
 refusal.hidden=true;
@@ -444,9 +454,10 @@ if(!started.ok)showRefusal(ctx,section,started.message);
 if(mountedRoot!==null&&mountedCtx!==null)update(mountedRoot,mountedCtx);
 }
 function paintTone3000(section,ctx){
+paintTone3000Choices(section,ctx);
 const line=section.querySelector('[data-cabinet-fetched]');
 if(line===null)return;
-if(tone3000===null){
+if(tone3000===null||tone3000 .phase==='choose'){
 line.hidden=true;
 line.textContent='';
 return;
@@ -454,6 +465,11 @@ return;
 if(tone3000 .phase==='fetching'){
 line.hidden=false;
 line.textContent=t('Tone3000: fetching the cabinet you chose…');
+return;
+}
+if(tone3000 .phase==='opening'){
+line.hidden=false;
+line.textContent=t('Tone3000: opening the cabinet you chose…');
 return;
 }
 if(ctx.session!==null){
@@ -466,6 +482,63 @@ line.textContent=t(
 'Tone3000 sent "{name}" ({bytes} bytes). Nothing has been sent to the pedal: connect it, and this box asks before writing.',
 {name:tone3000 .name,bytes:tone3000 .buffer?tone3000 .buffer.byteLength:0}
 );
+}
+let paintedChoices='';
+function paintTone3000Choices(section,ctx){
+const block=section.querySelector('[data-cabinet-picker-block]');
+const note=section.querySelector('[data-cabinet-picker-note]');
+const list=section.querySelector('[data-cabinet-picker]');
+if(block===null||note===null||list===null)return;
+if(tone3000===null||tone3000 .phase!=='choose'){
+if(!block.hidden||paintedChoices!==''){
+block.hidden=true;
+list.textContent='';
+paintedChoices='';
+}
+return;
+}
+block.hidden=false;
+note.textContent=t('The package holds {count} cabinets. Choose the one to send to the pedal:',{
+count:tone3000 .choices.length,
+});
+const key=tone3000 .choices
+.map(function(choice){
+return choice.name;
+})
+.join('|');
+if(key===paintedChoices)return;
+paintedChoices=key;
+list.textContent='';
+for(let index=0;index<tone3000 .choices.length;index+=1){
+const button=el('button','chip',tone3000 .choices[index].name);
+button.setAttribute('data-cabinet-choice',String(index));
+button.addEventListener('click',function(){
+pickTone3000Choice(ctx,section,index);
+});
+list.appendChild(button);
+}
+}
+async function pickTone3000Choice(ctx,section,index){
+const held=tone3000;
+if(held===null||held.phase!=='choose')return;
+tone3000={phase:'opening'};
+if(mountedRoot!==null&&mountedCtx!==null)update(mountedRoot,mountedCtx);
+let taken;
+try{
+taken=await held.read(index);
+}catch(error){
+taken={ok:false,message:error&&error.message?error.message:String(error)};
+}
+if(!taken||!taken.ok){
+tone3000=null;
+showRefusal(ctx,section,taken&&taken.message?taken.message:t(
+'the package could not be opened, so no cabinet was offered. Nothing was sent to the pedal.'
+));
+if(mountedRoot!==null&&mountedCtx!==null)update(mountedRoot,mountedCtx);
+return;
+}
+tone3000={phase:'ready',name:taken.name,buffer:taken.buffer};
+if(mountedRoot!==null&&mountedCtx!==null)update(mountedRoot,mountedCtx);
 }
 function deliverTone3000(section,ctx){
 if(tone3000===null||tone3000 .phase!=='ready')return;
@@ -976,7 +1049,9 @@ const module=tone3000Module();
 if(module===null||!module.isConfigured())return;
 if(!module.isReturning(global.location?global.location.search:''))return;
 const settle=function(result){
-if(result.ok){
+if(result.ok&&result.choices){
+tone3000={phase:'choose',choices:result.choices,read:result.read};
+}else if(result.ok){
 tone3000={phase:'ready',name:result.name,buffer:result.buffer};
 }else{
 tone3000=null;
