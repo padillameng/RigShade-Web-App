@@ -142,6 +142,13 @@
   .lang-chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .lang-chips .chip { flex: 0 0 auto; }
 
+  .guide-fold > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; cursor: pointer; }
+  .guide-kicker { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--mint); }
+  .guide-title { font-size: 13.5px; font-weight: 600; color: var(--mist); }
+  .guide-steps { margin: 12px 0 0; padding-left: 22px; display: grid; gap: 10px; color: var(--secondary); font-size: 12.5px; }
+  .guide-steps li > strong { display: block; color: var(--mist); font-size: 13px; }
+  .guide-fold .fine { margin: 12px 0 0; font-size: 12px; color: var(--tertiary); }
+
   .tester-form {
     display: grid;
     gap: 10px 16px;
@@ -530,6 +537,46 @@
     </div>
     <p class="notice" id="status" data-shell="status-band" role="status"></p>
   </header>
+
+  <section class="panel wide guide" data-shell="guide">
+    <details class="guide-fold">
+      <summary>
+        <span class="guide-kicker" data-i18n="First time here?">First time here?</span>
+        <span class="guide-title" data-i18n="Step by step: from the USB cable to a saved preset">Step by step: from the USB cable to a saved preset</span>
+      </summary>
+      <ol class="guide-steps">
+        <li>
+          <strong data-i18n="Connect the pedal.">Connect the pedal.</strong>
+          <span data-i18n="Plug the Cube Baby into a USB port of this computer and press CONNECT. The browser asks once for permission to use MIDI, and the Pedal line shows the pedal's name when it answers. This step needs a computer with Chrome or Edge — a phone cannot reach the pedal over USB.">Plug the Cube Baby into a USB port of this computer and press CONNECT. The browser asks once for permission to use MIDI, and the Pedal line shows the pedal's name when it answers. This step needs a computer with Chrome or Edge — a phone cannot reach the pedal over USB.</span>
+        </li>
+        <li>
+          <strong data-i18n="Say which bank is playing.">Say which bank is playing.</strong>
+          <span data-i18n="The badge beside A, B and C reads bank? until you tell the page which bank the pedal's own switch is on. Tap it and pick that bank: the bank you hear takes your changes live, and the other two take them when you press SAVE.">The badge beside A, B and C reads bank? until you tell the page which bank the pedal's own switch is on. Tap it and pick that bank: the bank you hear takes your changes live, and the other two take them when you press SAVE.</span>
+        </li>
+        <li>
+          <strong data-i18n="Choose the preset you are editing.">Choose the preset you are editing.</strong>
+          <span data-i18n="Press A, B or C. Everything the page shows from then on is that preset, and the badge tells you whether the one you hear is the one you are editing.">Press A, B or C. Everything the page shows from then on is that preset, and the badge tells you whether the one you hear is the one you are editing.</span>
+        </li>
+        <li>
+          <strong data-i18n="Edit the blocks of the chain.">Edit the blocks of the chain.</strong>
+          <span data-i18n="The CHAIN screen draws the pedal's four blocks as boxes: AMP, MOD / DELAY, CAB / IR and VOLUME. Tap a box to reach its values, and let go of a control to write the new value to the pedal — you hear it as you make it.">The CHAIN screen draws the pedal's four blocks as boxes: AMP, MOD / DELAY, CAB / IR and VOLUME. Tap a box to reach its values, and let go of a control to write the new value to the pedal — you hear it as you make it.</span>
+        </li>
+        <li>
+          <strong data-i18n="Keep it with SAVE.">Keep it with SAVE.</strong>
+          <span data-i18n="SAVE at the foot of the chain writes the preset into the pedal and reads it back to confirm it; RESET and UNDO sit beside it. An edit or a tone that is not saved lives only until the pedal is switched off.">SAVE at the foot of the chain writes the preset into the pedal and reads it back to confirm it; RESET and UNDO sit beside it. An edit or a tone that is not saved lives only until the pedal is switched off.</span>
+        </li>
+        <li>
+          <strong data-i18n="Start from a tone instead.">Start from a tone instead.</strong>
+          <span data-i18n="TONES offers two ways to a preset: the LIBRARY of 92 researched tones, and GENERATE, which builds one from a description of the sound. Either way the values are shown before anything is sent — LOAD INTO THE CHAIN puts them into the preset you chose.">TONES offers two ways to a preset: the LIBRARY of 92 researched tones, and GENERATE, which builds one from a description of the sound. Either way the values are shown before anything is sent — LOAD INTO THE CHAIN puts them into the preset you chose.</span>
+        </li>
+        <li>
+          <strong data-i18n="Cabinets, and a bank of your own.">Cabinets, and a bank of your own.</strong>
+          <span data-i18n="BANK is where A, B and C are put together: name a configuration, load it into a preset, and export or import the whole bank as a file. The CABINET box reads the pedal's cabinet, imports a .wav — the Tone3000 catalogue is one tap away — and RESTORE puts the factory one back.">BANK is where A, B and C are put together: name a configuration, load it into a preset, and export or import the whole bank as a file. The CABINET box reads the pedal's cabinet, imports a .wav — the Tone3000 catalogue is one tap away — and RESTORE puts the factory one back.</span>
+        </li>
+      </ol>
+      <p class="fine" data-i18n="Opened with ?wire at the end of the address, the wire log prints every message the page sends and receives when something needs diagnosing. For a bug, a question, or a seat in the Android closed beta, the form at the end of this page is the way to reach us.">Opened with ?wire at the end of the address, the wire log prints every message the page sends and receives when something needs diagnosing. For a bug, a question, or a seat in the Android closed beta, the form at the end of this page is the way to reach us.</p>
+    </details>
+  </section>
 
   <section class="panel">
     <div class="panel-head">
