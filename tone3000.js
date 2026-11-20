@@ -61,6 +61,7 @@ params.set('code_challenge_method','S256');
 params.set('state',fields.state);
 params.set('prompt','select_tone');
 params.set('format','ir');
+params.set('gears','cab');
 params.set('menubar','true');
 return AUTHORIZE_URL+'?'+params.toString();
 }
@@ -72,15 +73,40 @@ return match[1].toLowerCase()+'//'+match[2].toLowerCase();
 function hostAllowed(url){
 return HOSTS.indexOf(hostOf(url))>=0;
 }
+const IR_HASH='ir-content-v1:';
+const NAM_HASH='nam-content-v1:';
+function isCabinet(row){
+const hash=String(row.content_hash||'').toLowerCase();
+if(hash.indexOf(IR_HASH)===0)return true;
+if(hash.indexOf(NAM_HASH)===0)return false;
+return row.architecture_version===null||row.architecture_version===undefined;
+}
 function pickModel(items){
 const list=Array.isArray(items)?items:[];
 for(let index=0;index<list.length;index+=1){
 const item=list[index]||{};
-if(item.architecture_version)continue;
+if(!isCabinet(item))continue;
 if(!String(item.model_url||''))continue;
 return item;
 }
 return null;
+}
+function describeModels(items){
+const list=Array.isArray(items)?items:[];
+const shown=[];
+for(let index=0;index<list.length&&shown.length<3;index+=1){
+const item=list[index]||{};
+const hash=String(item.content_hash||'').toLowerCase();
+const kind=hash.indexOf(IR_HASH)===0?'IR':hash.indexOf(NAM_HASH)===0?'NAM capture':'no content hash';
+const architecture=
+item.architecture_version===null||item.architecture_version===undefined
+?'none'
+:String(item.architecture_version);
+shown.push(
+'#'+(index+1)+' '+(String(item.name||'').trim()||'unnamed')+': '+kind+', architecture '+architecture
+);
+}
+return shown.join('; ');
 }
 function entriesOf(payload){
 if(Array.isArray(payload))return payload;
@@ -295,10 +321,19 @@ API_BASE+'/models?tone_id='+encodeURIComponent(toneId)+'&page_size=300',
 'the cabinet list'
 );
 if(!listed.ok)return listed;
-const items=entriesOf(listed.value);
+let items=entriesOf(listed.value);
+if(items.length===0){
+const plain=await getJson(s,API_BASE+'/models?tone_id='+encodeURIComponent(toneId),'the cabinet list');
+if(plain.ok)items=entriesOf(plain.value);
+}
 const model=pickModel(items);
 if(model===null){
-return refusal(t('the tone you chose has no cabinet file (.wav), so there is nothing to offer. Nothing was sent to the pedal.'));
+return refusal(
+t('the tone you chose has no cabinet file (.wav): Tone3000 listed {count} model(s) for it and none is an IR ({detail}). Nothing was sent to the pedal.',{
+count:items.length,
+detail:describeModels(items)||t('the list came back empty'),
+})
+);
 }
 return download(s,model,recordOf(tone.value));
 }
