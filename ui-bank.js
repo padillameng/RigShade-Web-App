@@ -430,6 +430,14 @@ if(!gate.ok){
 showRefusal(ctx,section,gate.reason);
 return;
 }
+if(!ctx.ready()){
+showRefusal(
+ctx,
+section,
+t('no pedal is connected, so nothing was written: press CONNECT and import the file again. Nothing was sent to the pedal.')
+);
+return;
+}
 showRefusal(ctx,section,null);
 openUpload(ctx,section,{mode:'upload'});
 }
@@ -472,7 +480,7 @@ line.hidden=false;
 line.textContent=t('Tone3000: opening the cabinet you chose…');
 return;
 }
-if(ctx.session!==null){
+if(ctx.ready()){
 line.hidden=true;
 line.textContent='';
 return;
@@ -542,7 +550,7 @@ if(mountedRoot!==null&&mountedCtx!==null)update(mountedRoot,mountedCtx);
 }
 function deliverTone3000(section,ctx){
 if(tone3000===null||tone3000 .phase!=='ready')return;
-if(ctx.session===null)return;
+if(ctx.session===null||!ctx.ready())return;
 const held=tone3000;
 tone3000=null;
 chooseCabinetFile(ctx,section,{
@@ -690,7 +698,8 @@ confirm.textContent=t('RESTORE');
 }else{
 const gate=pending!==null&&pending.gate!==undefined?pending.gate:null;
 if(gate===null||!gate.ok)return;
-title.textContent=t('Write this cabinet?');
+const name=pending.file!==null&&pending.file!==undefined&&pending.file.name?String(pending.file.name):'';
+title.textContent=name?t('Write "{name}" into the cabinet slot?',{name:name}):t('Write this cabinet?');
 body.textContent=uploadBody(gate);
 confirm.textContent=t('WRITE');
 }

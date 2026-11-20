@@ -546,7 +546,25 @@ else guidance(GUIDANCE.READ_THE_PEDAL_FIRST());
 render();
 }
 let relinking=null;
+const PEDAL_SEEN_KEY='rigshade.link.seen';
+function pedalWasSeen(){
+try{
+return global.sessionStorage.getItem(PEDAL_SEEN_KEY)==='1';
+}catch(error){
+return false;
+}
+}
+function rememberPedalSeen(){
+try{
+global.sessionStorage.setItem(PEDAL_SEEN_KEY,'1');
+}catch(error){
+}
+}
 let pedalSeen=false;
+function resume(){
+pedalSeen=pedalWasSeen();
+relink();
+}
 function relink(){
 if(link===null||relinking!==null)return;
 if(!pedalSeen||link.state().kind==='Ready')return;
@@ -564,7 +582,10 @@ if(link===null)return;
 link.watch(function(current){
 state.linkKind=current.kind;
 state.linkReason=current.reason||'';
-if(current.kind==='Ready')pedalSeen=true;
+if(current.kind==='Ready'){
+pedalSeen=true;
+rememberPedalSeen();
+}
 render();
 if(current.kind==='Ready')autoRead(current);
 else relink();
@@ -658,6 +679,7 @@ if(document.visibilityState==='hidden')return;
 relink();
 });
 wireLink();
+resume();
 render();
 }
 function onPortChange(){
@@ -666,7 +688,15 @@ link.select(byId('out-port').value,byId('in-port').value);
 status(t('the pair was chosen by hand and has not been verified: press CONNECT to ask it its name'),'');
 render();
 }
-return{start:start,render:render,renderNav:renderNav,ctx:ctx,state:state};
+return{
+start:start,
+render:render,
+renderNav:renderNav,
+ctx:ctx,
+state:state,
+resume:resume,
+linkMemory:{key:PEDAL_SEEN_KEY,read:pedalWasSeen,write:rememberPedalSeen},
+};
 }
 global.RigShadeUI={
 registerScreen:registerScreen,
