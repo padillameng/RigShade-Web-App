@@ -77,10 +77,21 @@ const list=Array.isArray(items)?items:[];
 for(let index=0;index<list.length;index+=1){
 const item=list[index]||{};
 if(item.architecture_version)continue;
-if(!/\.wav(?:[?#]|$)/i.test(String(item.model_url||'')))continue;
+if(!String(item.model_url||''))continue;
 return item;
 }
 return null;
+}
+function entriesOf(payload){
+if(Array.isArray(payload))return payload;
+if(payload&&Array.isArray(payload.data))return payload.data;
+if(payload&&Array.isArray(payload.models))return payload.models;
+return[];
+}
+function recordOf(payload){
+if(!payload||typeof payload!=='object'||Array.isArray(payload))return null;
+if(payload.data&&typeof payload.data==='object'&&!Array.isArray(payload.data))return payload.data;
+return payload;
 }
 function fileNameFor(named,url){
 const path=String(url===null||url===undefined?'':url).split('#')[0].split('?')[0];
@@ -284,14 +295,12 @@ API_BASE+'/models?tone_id='+encodeURIComponent(toneId)+'&page_size=300',
 'the cabinet list'
 );
 if(!listed.ok)return listed;
-const items=Array.isArray(listed.value)
-?listed.value
-:(listed.value&&listed.value.models)||[];
+const items=entriesOf(listed.value);
 const model=pickModel(items);
 if(model===null){
 return refusal(t('the tone you chose has no cabinet file (.wav), so there is nothing to offer. Nothing was sent to the pedal.'));
 }
-return download(s,model,tone.value);
+return download(s,model,recordOf(tone.value));
 }
 async function tokenRequest(s,fields,step){
 const body=new URLSearchParams();
