@@ -171,6 +171,11 @@
   .tester-form textarea { resize: vertical; min-height: 72px; }
   .tester-form .fine { font-size: 12px; color: var(--tertiary); }
 
+  .tester-fold > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; cursor: pointer; }
+  .tester-body { display: grid; gap: 10px; margin-top: 12px; }
+  .tester-body > p { margin: 0; }
+  .tester-body > .fine { font-size: 12px; color: var(--tertiary); }
+
   .foot-cta { align-items: stretch; }
   .foot-cta > * { flex: 0 0 auto; }
   .play-badge {
@@ -633,46 +638,51 @@
   </dialog>
 
   <footer class="panel wide foot" data-shell="foot">
-    <div class="panel-head">
-      <h2 data-i18n="Testers">Testers</h2>
-      <span class="state" data-i18n="Android app · closed beta">Android app · closed beta</span>
-    </div>
-    <p data-i18n="We are opening a closed beta of the RigShade Android app, and the only thing we need from you is your email: write it below and we will send you access to the test. The app is 100% free — no subscription, nothing to pay later. In exchange we ask you for feedback: use it with your pedal and tell us what works and what you would change. A closed test needs testers who really take part and use the app, which is what Google asks of one, and your comments are what the app gets changed for.">We are opening a closed beta of the RigShade Android app, and the only thing we need from you is your email: write it below and we will send you access to the test. The app is 100% free — no subscription, nothing to pay later. In exchange we ask you for feedback: use it with your pedal and tell us what works and what you would change. A closed test needs testers who really take part and use the app, which is what Google asks of one, and your comments are what the app gets changed for.</p>
-    <p class="fine" data-i18n="Nothing else is asked of you: an address gets you in, and a line or two about how the app behaves on your phone is what we learn from.">Nothing else is asked of you: an address gets you in, and a line or two about how the app behaves on your phone is what we learn from.</p>
 
-    <form class="tester-form" data-shell="tester-form" data-contact-email="rigcanvaslab@gmail.com" hidden>
-      <label class="wide-field"><span data-i18n="Your email">Your email</span>
-        <input name="email" type="email" required maxlength="254" placeholder="you@gmail.com"
-               data-i18n="you@gmail.com" data-i18n-attr="placeholder"
-               autocomplete="email" spellcheck="false">
-      </label>
-      <label class="wide-field"><span data-i18n="Feedback about the webapp (optional)">Feedback about the webapp (optional)</span>
-        <textarea name="feedback" rows="3" maxlength="2000"
-                  placeholder="What worked and what you would change in this page — optional."
-                  data-i18n="What worked and what you would change in this page — optional."
-                  data-i18n-attr="placeholder" spellcheck="false"></textarea>
-      </label>
-      <p class="fine wide-field"><strong data-i18n="You send it, we receive it.">You send it, we receive it.</strong> <span data-i18n="The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the beta invitation sent to.">The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the beta invitation sent to.</span></p>
-      <div class="row wide-field">
-        <button class="primary" type="submit" data-shell="tester-submit" data-i18n="Request access">Request access</button>
-        <span class="notice" data-shell="tester-status" role="status"></span>
+    <details class="guide-fold tester-fold" data-shell="tester-fold">
+      <summary>
+        <span class="guide-kicker" data-i18n="Testers">Testers</span>
+        <span class="guide-title" data-i18n="Do you want to try the Android version?">Do you want to try the Android version?</span>
+      </summary>
+      <div class="tester-body">
+        <p data-i18n="We are opening a closed beta of the RigShade Android app, and the only thing we need from you is your email: write it below and we will send you access to the test. The app is 100% free — no subscription, nothing to pay later. In exchange we ask you for feedback: use it with your pedal and tell us what works and what you would change. A closed test needs testers who really take part and use the app, which is what Google asks of one, and your comments are what the app gets changed for.">We are opening a closed beta of the RigShade Android app, and the only thing we need from you is your email: write it below and we will send you access to the test. The app is 100% free — no subscription, nothing to pay later. In exchange we ask you for feedback: use it with your pedal and tell us what works and what you would change. A closed test needs testers who really take part and use the app, which is what Google asks of one, and your comments are what the app gets changed for.</p>
+        <p class="fine" data-i18n="Nothing else is asked of you: an address gets you in, and a line or two about how the app behaves on your phone is what we learn from.">Nothing else is asked of you: an address gets you in, and a line or two about how the app behaves on your phone is what we learn from.</p>
+
+        <form class="tester-form" data-shell="tester-form" data-contact-email="rigcanvaslab@gmail.com" hidden>
+          <label class="wide-field"><span data-i18n="Your email">Your email</span>
+            <input name="email" type="email" required maxlength="254" placeholder="you@gmail.com"
+                   data-i18n="you@gmail.com" data-i18n-attr="placeholder"
+                   autocomplete="email" spellcheck="false">
+          </label>
+          <label class="wide-field"><span data-i18n="Feedback about the webapp (optional)">Feedback about the webapp (optional)</span>
+            <textarea name="feedback" rows="3" maxlength="2000"
+                      placeholder="What worked and what you would change in this page — optional."
+                      data-i18n="What worked and what you would change in this page — optional."
+                      data-i18n-attr="placeholder" spellcheck="false"></textarea>
+          </label>
+          <p class="fine wide-field"><strong data-i18n="You send it, we receive it.">You send it, we receive it.</strong> <span data-i18n="The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the beta invitation sent to.">The button opens your own email app with the message already written to the RigShade mailbox — nothing leaves this page until you press send there, and the message is not published anywhere. Use the address you want the beta invitation sent to.</span></p>
+          <div class="row wide-field">
+            <button class="primary" type="submit" data-shell="tester-submit" data-i18n="Request access">Request access</button>
+            <span class="notice" data-shell="tester-status" role="status"></span>
+          </div>
+        </form>
+        <p class="notice" data-shell="tester-pending" data-i18n="The tester intake is being set up.">The tester intake is being set up.</p>
+
+        <div class="row foot-cta">
+          <a class="play-badge" data-shell="play-badge" href="https://padillameng.github.io/Rigshade-Site/support/" target="_blank" rel="noopener">
+            <svg class="play-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="var(--mint)" d="M8 4.4v15.2c0 .9 1 1.4 1.8 1l11.4-7.6c.7-.5.7-1.5 0-2L9.8 3.4C9 3 8 3.5 8 4.4z"></path>
+            </svg>
+            <span class="play-copy">
+              <span class="play-kicker" data-i18n="GET IT ON">GET IT ON</span>
+              <span class="play-name" data-i18n="Google Play">Google Play</span>
+            </span>
+          </a>
+          <a class="primary" data-shell="site-link" href="https://padillameng.github.io/Rigshade-Site/"
+             target="_blank" rel="noopener" data-i18n="Visit the RigShade site">Visit the RigShade site</a>
+        </div>
       </div>
-    </form>
-    <p class="notice" data-shell="tester-pending" data-i18n="The tester intake is being set up.">The tester intake is being set up.</p>
-
-    <div class="row foot-cta">
-      <a class="play-badge" data-shell="play-badge" href="https://padillameng.github.io/Rigshade-Site/support/" target="_blank" rel="noopener">
-        <svg class="play-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path fill="var(--mint)" d="M8 4.4v15.2c0 .9 1 1.4 1.8 1l11.4-7.6c.7-.5.7-1.5 0-2L9.8 3.4C9 3 8 3.5 8 4.4z"></path>
-        </svg>
-        <span class="play-copy">
-          <span class="play-kicker" data-i18n="GET IT ON">GET IT ON</span>
-          <span class="play-name" data-i18n="Google Play">Google Play</span>
-        </span>
-      </a>
-      <a class="primary" data-shell="site-link" href="https://padillameng.github.io/Rigshade-Site/"
-         target="_blank" rel="noopener" data-i18n="Visit the RigShade site">Visit the RigShade site</a>
-    </div>
+    </details>
     <p class="fine"><span data-i18n="© RigShade. All rights reserved.">© RigShade. All rights reserved.</span> · <a href="legal.html#terms" data-i18n="Terms of use">Terms of use</a> ·
       <a href="legal.html#privacy" data-i18n="Privacy">Privacy</a></p>
     <p class="fine" data-i18n="RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE; the pedal's name is here only to say what this page talks to.">RigShade is an independent project. It is not affiliated with, endorsed by or sponsored by M-VAVE or CUVAVE; the pedal's name is here only to say what this page talks to.</p>
