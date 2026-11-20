@@ -36,11 +36,15 @@ return input&&typeof input.value==='string'?input.value.trim():'';
 }
 function mailtoUrl(values){
 var email=String(values.email||'').trim();
+var feedback=String(values.feedback||'').trim();
 var subject=t('RigShade closed beta — access request');
 var body=[
 t('Closed beta request'),
 '',
 t('Email for the beta: {value}',{value:email||t('(not given)')}),
+'',
+t('Feedback about the webapp:'),
+feedback||t('(not given)'),
 '',
 '--',
 t('Sent from the RigShade WebApp.')
@@ -51,7 +55,7 @@ return'mailto:'+mailbox+
 }
 form.addEventListener('submit',function(event){
 event.preventDefault();
-var address=mailtoUrl({email:field('email')});
+var address=mailtoUrl({email:field('email'),feedback:field('feedback')});
 if(status){
 status.textContent=t('Opening your email app — the message goes to {mailbox}.',{mailbox:mailbox});
 }
