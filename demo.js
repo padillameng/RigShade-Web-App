@@ -267,8 +267,9 @@ key:'cabinet',
 screen:'BANK',
 label:'CABINET',
 target:'[data-cabinet-panel]',
-title:'CABINET holds the cabinet you choose.',
-body:'READ CABINET shows what the pedal carries, IMPORT WAV takes a .wav from your computer, and Get a cabinet from Tone3000 brings one from the catalogue. RESTORE puts the factory one back, and nothing is written until you press WRITE.',
+title:'CABINET is the speaker your tone goes through.',
+body:'A cabinet file, an IR, is what makes a preset sound like a particular 4x12 or combo, and each preset picks its own.',
+detail:'The seven factory cabinets are built into the pedal and stay: what you fill is its one free slot, number 8, shared by A, B and C. READ CABINET shows what that slot holds now, IMPORT WAV takes a .wav from your computer (a .zip opens and you pick the cabinet inside), and Get a cabinet from Tone3000 brings one from the catalogue. The slot is short, so your file is trimmed — the page says by how much before anything is sent — nothing is written until you press WRITE, and RESTORE puts back what the slot held before. Then choose IR 8 · user, or the name of your file, as the IR of the preset you are editing, in its CAB / IR block, and press SAVE to keep it.',
 },
 {
 key:'done',
@@ -286,6 +287,7 @@ const STYLE=[
 '.demo-topics span { color: var(--secondary); }',
 '.demo-topics a { color: var(--secondary); border: 1px solid var(--hairline); border-radius: 999px; padding: 4px 10px; text-decoration: none; }',
 '.demo-tour { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 40; max-width: 640px; margin: 0 auto;',
+'  max-height: 70vh; overflow-y: auto;',
 '  background: var(--panel); border: 1px solid var(--hairline); border-radius: 12px; padding: 14px 16px;',
 '  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); }',
 '.demo-tour h3 { margin: 4px 0 6px; }',
@@ -345,6 +347,9 @@ tour.querySelector('[data-demo="kicker"]').textContent=
 t('Demo')+' · '+t('{step} of {total}',{step:step+1,total:STEPS.length});
 tour.querySelector('[data-demo="title"]').textContent=t(each.title);
 tour.querySelector('[data-demo="body"]').textContent=t(each.body);
+const detail=tour.querySelector('[data-demo="detail"]');
+detail.textContent=each.detail?t(each.detail):'';
+detail.hidden=!each.detail;
 tour.querySelector('[data-demo="back"]').textContent=t('Back');
 tour.querySelector('[data-demo="back"]').disabled=step===0;
 tour.querySelector('[data-demo="next"]').textContent=step===STEPS.length-1?t('Done'):t('Next');
@@ -390,6 +395,8 @@ const title=document.createElement('h3');
 title.setAttribute('data-demo','title');
 const body=document.createElement('p');
 body.setAttribute('data-demo','body');
+const detail=document.createElement('p');
+detail.setAttribute('data-demo','detail');
 const chooser=document.createElement('div');
 chooser.className='row demo-chips';
 chooser.setAttribute('data-demo','topics');
@@ -436,6 +443,7 @@ row.appendChild(leave);
 tour.appendChild(kicker);
 tour.appendChild(title);
 tour.appendChild(body);
+tour.appendChild(detail);
 tour.appendChild(chooser);
 tour.appendChild(row);
 document.body.appendChild(tour);
