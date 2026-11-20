@@ -435,14 +435,37 @@ rule:String(event.violatedDirective||event.effectiveDirective||''),
 }catch(error){
 }
 }
+function ownRuleNames(host){
+const doc=global.document;
+if(!doc||typeof doc.querySelector!=='function')return null;
+let meta=null;
+try{
+meta=doc.querySelector('meta[http-equiv="Content-Security-Policy"]');
+}catch(error){
+return null;
+}
+if(meta===null||meta===undefined||typeof meta.getAttribute!=='function')return null;
+const content=String(meta.getAttribute('content')||'');
+const found=/(?:^|;)\s*connect-src\s+([^;]*)/i.exec(content);
+if(found===null)return null;
+return found[1].split(/\s+/).indexOf(host)>=0;
+}
 function policyMessage(step){
 const stopped=blockedByPolicy;
 if(stopped===null)return null;
 blockedByPolicy=null;
 if(hostAllowed(stopped.blocked)){
+const host=hostOf(stopped.blocked);
+if(ownRuleNames(host)===true){
+return t('the browser stopped the {step} request to {blocked} although this page\'s own rule names {host}: the answer sent the request on to another address, and the rule does not name that one, so the file never arrived. Saving the file with your browser — unzipping the package first if it comes as one — and then pressing IMPORT WAV still gets it to the pedal. Nothing was sent to the pedal.',{
+blocked:stopped.blocked,
+host:host,
+step:t(step),
+});
+}
 return t('the browser blocked the {step} request to {blocked}, but the page published today does allow {host}: this tab is running an older copy of the page, with the safety rule it had when it was opened. Open the page again and the download will go through. Nothing was sent to the pedal.',{
 blocked:stopped.blocked,
-host:hostOf(stopped.blocked),
+host:host,
 step:t(step),
 });
 }
