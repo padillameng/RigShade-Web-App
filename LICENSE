@@ -1,0 +1,50 @@
+RigShade WebApp — licence
+
+Copyright © 2026 RigShade. All rights reserved.
+
+This file is the licence of the published RigShade WebApp: the page served at
+https://padillameng.github.io/RigShade-Web-App/ together with every file served beside it. "The
+page" below means that published page and those files together.
+
+1. What you may do
+
+You may open the page in a browser, run it, and evaluate it, for as long as you like and without
+asking us, for personal, non-commercial use. Nothing here restricts what your browser must do to
+show the page: caching it, keeping the bank of presets you build in it, and talking through it to a
+pedal you own are all part of using it.
+
+2. What you may not do
+
+Without prior written permission you may not:
+
+  - copy, save, mirror, redistribute or republish the page or any of its files, or make them
+    available to anyone else;
+  - modify the page or any of its files, or create derivative works from them;
+  - sublicense the page or any of its files, sell them, or charge for access to them;
+  - use the page or any of its files as the basis of another product or service, or incorporate them
+    into one;
+  - remove, hide or alter the copyright notices, this licence, or the RigShade name and design.
+
+3. Third-party names
+
+Cube Baby, M-VAVE, CUVAVE and Google Play are the names and marks of their respective owners. They
+appear in this page only to say which device this page talks to and where the mobile app is
+distributed. RigShade is an independent project: it is not affiliated with, endorsed by or sponsored
+by any of those owners, and this page is not an official product of theirs.
+
+4. No warranty
+
+The page is provided as it is, without warranty of any kind, express or implied, including but not
+limited to any warranty of merchantability, fitness for a particular purpose or non-infringement. It
+writes to the flash memory of a pedal you connect to it: it reads back what it writes and reports a
+mismatch, but nothing here guarantees that a write succeeds, that a preset survives, or that the
+pedal is otherwise unaffected. You use the page at your own risk, and you should export a preset you
+care about before changing it.
+
+To the extent permitted by applicable law, RigShade is not liable for damage to a pedal, to a
+computer, or to data, arising from the use of, or the inability to use, the page.
+
+5. Permission
+
+Written permission for any use this licence does not grant can be requested at
+rigcanvaslab@gmail.com.
